@@ -107,11 +107,15 @@ async function main() {
   ];
 
   for (const service of services) {
-    await prisma.service.upsert({
+    const existingService = await prisma.service.findFirst({
       where: { name: service.name },
-      update: {},
-      create: service,
     });
+
+    if (!existingService) {
+      await prisma.service.create({
+        data: service,
+      });
+    }
   }
 
   console.log("Database seeded successfully!");
