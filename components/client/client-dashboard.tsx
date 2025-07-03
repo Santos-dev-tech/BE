@@ -24,9 +24,9 @@ interface Booking {
   stylist: string;
   date: string;
   time: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
+  status: "pending" | "confirmed" | "completed" | "cancelled" | "in_progress";
   price: number;
-  createdAt: Timestamp;
+  createdAt: Date;
 }
 
 export default function ClientDashboard() {
