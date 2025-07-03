@@ -1,42 +1,52 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useClientAuth } from "@/hooks/use-client-auth"
-import { Loader2, Sparkles, ArrowLeft } from "lucide-react"
-import Link from "next/link"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useClientAuth } from "@/hooks/use-client-auth";
+import { Loader2, Sparkles, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ClientSignInForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const { loginClient } = useClientAuth()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { loginClient } = useClientAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      await loginClient(email, password)
+      await loginClient(email, password);
     } catch (error: any) {
-      setError(error.message || "Login failed")
+      setError(error.message || "Login failed");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50">
       <div className="w-full max-w-md">
-        <Link href="/auth" className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-6">
+        <Link
+          href="/auth"
+          className="inline-flex items-center text-purple-600 hover:text-purple-700 mb-6"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to selection
         </Link>
@@ -46,8 +56,12 @@ export default function ClientSignInForm() {
             <div className="flex justify-center mb-4">
               <Sparkles className="h-12 w-12 text-purple-600" />
             </div>
-            <CardTitle className="text-2xl font-bold text-purple-800">Welcome Back</CardTitle>
-            <CardDescription>Sign in to your BeautyExpress account</CardDescription>
+            <CardTitle className="text-2xl font-bold text-purple-800">
+              Welcome Back
+            </CardTitle>
+            <CardDescription>
+              Sign in to your BeautyExpress account
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,7 +91,11 @@ export default function ClientSignInForm() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full bg-purple-600 hover:bg-purple-700"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -92,14 +110,20 @@ export default function ClientSignInForm() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Don't have an account?{" "}
-                <Link href="/auth/client/signup" className="text-purple-600 hover:underline">
+                <Link
+                  href="/auth/client/signup"
+                  className="text-purple-600 hover:underline"
+                >
                   Create one here
                 </Link>
               </p>
             </div>
 
             <div className="mt-4 text-center">
-              <Link href="/auth/forgot-password" className="text-sm text-purple-600 hover:underline">
+              <Link
+                href="/auth/forgot-password"
+                className="text-sm text-purple-600 hover:underline"
+              >
                 Forgot your password?
               </Link>
             </div>
@@ -107,5 +131,5 @@ export default function ClientSignInForm() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
