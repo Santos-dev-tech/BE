@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  phone         String?
+  password      String
+  role          Role     @default(CLIENT)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Client relationships
+  bookings      Booking[]
+  sentMessages  Message[] @relation("SentMessages")
+  notifications Notification[]
+  
+  // Stylist relationships
+  stylistBookings Booking[] @relation("StylistBookings")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  
+  @@map("users")
+}
+
+model Service {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  duration    Int       // in minutes
+  price       Float
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  bookings    Booking[]
+  
+  @@map("services")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  customer    User          @relation(fields: [customerId], references: [id])
+  customerId  String
+  stylist     User          @relation("StylistBookings", fields: [stylistId], references: [id])
+  stylistId   String
+  service     Service       @relation(fields: [serviceId], references: [id])
+  serviceId   String
+  
+  date        DateTime
+  time        String
+  status      BookingStatus @default(PENDING)
+  notes       String?
+  price       Float
+  
+  startTime   DateTime?
+  endTime     DateTime?
+  duration    Int?          // actual duration in minutes
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@map("bookings")
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  content     String
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  senderId    String
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  receiverId  String
+  bookingId   String?  // Optional: link to specific booking
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  @@map("messages")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  user      User             @relation(fields: [userId], references: [id])
+  userId    String
+  title     String
+  message   String
+  type      NotificationType @default(INFO)
+  isRead    Boolean          @default(false)
+  data      Json?            // Additional data as JSON
+  createdAt DateTime         @default(now())
+  
+  @@map("notifications")
+}
+
+enum Role {
+  CLIENT
+  STYLIST
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  INFO
+  BOOKING
+  MESSAGE
+  REMINDER
+}
