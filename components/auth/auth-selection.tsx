@@ -179,14 +179,9 @@ export default function AuthSelection() {
                     Sign In as Admin
                   </Button>
                 </Link>
-                <Link href="/auth/admin/signup" className="block">
-                  <Button
-                    variant="outline"
-                    className="w-full border-yellow-300 text-yellow-700 hover:bg-yellow-50 bg-transparent"
-                  >
-                    Create Admin Account
-                  </Button>
-                </Link>
+                <p className="text-xs text-gray-500 text-center">
+                  Admin access is restricted to authorized personnel only
+                </p>
               </div>
             </CardContent>
           </Card>
