@@ -335,7 +335,7 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="bookings">
-            <BookingsManager />
+            <BookingsManager onBookingUpdate={fetchDashboardStats} />
           </TabsContent>
 
           <TabsContent value="messages">
