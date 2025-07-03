@@ -166,6 +166,11 @@ export function BookingsManager({ onBookingUpdate }: BookingsManagerProps) {
           ),
         );
         toast.success(`Booking ${status}`);
+
+        // Trigger dashboard stats refresh
+        if (onBookingUpdate) {
+          onBookingUpdate();
+        }
       } else {
         throw new Error("Failed to update booking");
       }
