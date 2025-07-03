@@ -1,46 +1,68 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { Bell, Calendar, MessageSquare, CreditCard, Clock, Check } from "lucide-react"
-import { useNotifications } from "@/hooks/use-notifications"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import {
+  Bell,
+  Calendar,
+  MessageSquare,
+  CreditCard,
+  Clock,
+  Check,
+} from "lucide-react";
+import { useNotifications } from "@/hooks/use-notifications";
 
 interface NotificationBellProps {
-  userId: string
+  userId: string;
 }
 
 export function NotificationBell({ userId }: NotificationBellProps) {
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications(userId)
-  const [isOpen, setIsOpen] = useState(false)
+  const { notifications, unreadCount, markAsRead, markAllAsRead } =
+    useNotifications(userId);
+  const [isOpen, setIsOpen] = useState(false);
 
   const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case "booking":
-        return <Calendar className="h-4 w-4 text-blue-500" />
-      case "message":
-        return <MessageSquare className="h-4 w-4 text-green-500" />
-      case "payment":
-        return <CreditCard className="h-4 w-4 text-purple-500" />
-      case "reminder":
-        return <Clock className="h-4 w-4 text-orange-500" />
+    switch (type.toUpperCase()) {
+      case "BOOKING":
+        return <Calendar className="h-4 w-4 text-blue-500" />;
+      case "MESSAGE":
+        return <MessageSquare className="h-4 w-4 text-green-500" />;
+      case "INFO":
+        return <CreditCard className="h-4 w-4 text-purple-500" />;
+      case "REMINDER":
+        return <Clock className="h-4 w-4 text-orange-500" />;
       default:
-        return <Bell className="h-4 w-4 text-gray-500" />
+        return <Bell className="h-4 w-4 text-gray-500" />;
     }
-  }
+  };
 
   const handleNotificationClick = (notificationId: string) => {
-    markAsRead(notificationId)
-  }
+    markAsRead(notificationId);
+  };
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="icon" className="relative bg-transparent">
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative bg-transparent"
+        >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
             <Badge
@@ -65,7 +87,9 @@ export function NotificationBell({ userId }: NotificationBellProps) {
               )}
             </div>
             <CardDescription>
-              {unreadCount > 0 ? `${unreadCount} unread notifications` : "All caught up!"}
+              {unreadCount > 0
+                ? `${unreadCount} unread notifications`
+                : "All caught up!"}
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
@@ -76,7 +100,9 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                     <div key={notification.id}>
                       <div
                         className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-                          !notification.read ? "bg-blue-50 border-l-2 border-blue-500" : ""
+                          !notification.read
+                            ? "bg-blue-50 border-l-2 border-blue-500"
+                            : ""
                         }`}
                         onClick={() => handleNotificationClick(notification.id)}
                       >
@@ -88,12 +114,18 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                             >
                               {notification.title}
                             </p>
-                            <p className="text-sm text-gray-500 mt-1">{notification.message}</p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              {notification.message}
+                            </p>
                             <p className="text-xs text-gray-400 mt-1">
-                              {notification.createdAt?.toDate().toLocaleString()}
+                              {notification.createdAt
+                                ?.toDate()
+                                .toLocaleString()}
                             </p>
                           </div>
-                          {!notification.read && <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>}
+                          {!notification.read && (
+                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                          )}
                         </div>
                       </div>
                       {index < notifications.length - 1 && <Separator />}
@@ -111,5 +143,5 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         </Card>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
