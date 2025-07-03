@@ -131,6 +131,22 @@ export default function AdminDashboard() {
           todayRevenue,
           recentActivity,
         });
+      } else {
+        console.error("Failed to fetch data:", {
+          bookingsStatus: bookingsResponse.status,
+          usersStatus: usersResponse.status,
+        });
+
+        // Try to get error details
+        if (!bookingsResponse.ok) {
+          const bookingsError = await bookingsResponse.text();
+          console.error("Bookings API error:", bookingsError);
+        }
+
+        if (!usersResponse.ok) {
+          const usersError = await usersResponse.text();
+          console.error("Users API error:", usersError);
+        }
       }
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
