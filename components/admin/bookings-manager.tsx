@@ -55,9 +55,10 @@ interface Booking {
   stylist: string;
   date: string;
   time: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
+  status: "pending" | "confirmed" | "completed" | "cancelled" | "in_progress";
   notes?: string;
-  createdAt: Timestamp;
+  price?: number;
+  createdAt: Date;
 }
 
 export function BookingsManager() {
