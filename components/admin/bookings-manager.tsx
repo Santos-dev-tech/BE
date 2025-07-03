@@ -153,9 +153,30 @@ export function BookingsManager() {
     status: Booking["status"],
   ) => {
     try {
-      await updateDoc(doc(db, "bookings", bookingId), { status });
+      const token = localStorage.getItem("auth-token");
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: status.toUpperCase() }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        setBookings((prev) =>
+          prev.map((booking) =>
+            booking.id === bookingId ? { ...booking, status } : booking,
+          ),
+        );
+        toast.success(`Booking ${status}`);
+      } else {
+        throw new Error("Failed to update booking");
+      }
     } catch (error) {
       console.error("Error updating booking status:", error);
+      toast.error("Failed to update booking status");
     }
   };
 
