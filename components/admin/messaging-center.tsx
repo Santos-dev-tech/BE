@@ -234,49 +234,53 @@ export function MessagingCenter() {
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>
-            {selectedConversation
-              ? conversations.find((c) => c.id === selectedConversation)
-                  ?.customerName || "Customer"
-              : "Select a conversation"}
+            {selectedClient ? selectedClient.name : "Select a client"}
           </CardTitle>
           <CardDescription>
-            {selectedConversation
-              ? conversations.find((c) => c.id === selectedConversation)
-                  ?.customerEmail
-              : "Choose a customer to start messaging"}
+            {selectedClient
+              ? selectedClient.email
+              : "Choose a client to start messaging"}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col h-[500px]">
-          {selectedConversation ? (
+          {selectedClient ? (
             <>
               {/* Messages */}
               <ScrollArea className="flex-1 pr-4">
                 <div className="space-y-4">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.senderType === "admin" ? "justify-end" : "justify-start"}`}
-                    >
-                      <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          message.senderType === "admin"
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-100 text-gray-900"
-                        }`}
-                      >
-                        <p className="text-sm">{message.text}</p>
-                        <p
-                          className={`text-xs mt-1 ${
-                            message.senderType === "admin"
-                              ? "text-blue-100"
-                              : "text-gray-500"
-                          }`}
-                        >
-                          {message.timestamp?.toDate().toLocaleTimeString()}
-                        </p>
-                      </div>
+                  {messages.length === 0 ? (
+                    <div className="text-center text-gray-500 mt-8">
+                      <MessageSquare className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                      <p>No messages yet. Start the conversation!</p>
                     </div>
-                  ))}
+                  ) : (
+                    messages.map((message) => {
+                      const isOwnMessage = message.senderId === user?.id;
+                      return (
+                        <div
+                          key={message.id}
+                          className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
+                        >
+                          <div
+                            className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                              isOwnMessage
+                                ? "bg-blue-500 text-white"
+                                : "bg-gray-100 text-gray-900"
+                            }`}
+                          >
+                            <p className="text-sm">{message.content}</p>
+                            <p
+                              className={`text-xs mt-1 ${
+                                isOwnMessage ? "text-blue-100" : "text-gray-500"
+                              }`}
+                            >
+                              {new Date(message.createdAt).toLocaleTimeString()}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
@@ -299,7 +303,7 @@ export function MessagingCenter() {
             <div className="flex-1 flex items-center justify-center text-gray-500">
               <div className="text-center">
                 <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>Select a conversation to start messaging</p>
+                <p>Select a client to start messaging</p>
               </div>
             </div>
           )}
