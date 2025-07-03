@@ -88,46 +88,71 @@ export function MessagingCenter() {
   };
 
   useEffect(() => {
-    if (selectedConversation) {
-      // Load messages for selected conversation
-      const messagesQuery = query(
-        collection(db, "messages"),
-        where("conversationId", "==", selectedConversation),
-        orderBy("timestamp", "asc"),
-      );
-
-      const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-        const messagesData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Message[];
-        setMessages(messagesData);
-      });
-
-      return unsubscribe;
+    if (selectedClient && user) {
+      fetchMessages();
+      // Set up polling for new messages
+      const interval = setInterval(fetchMessages, 5000);
+      return () => clearInterval(interval);
     }
-  }, [selectedConversation]);
+  }, [selectedClient, user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation || !user) return;
+  const fetchMessages = async () => {
+    if (!selectedClient || !user) return;
 
     try {
-      await addDoc(collection(db, "messages"), {
-        text: newMessage,
-        senderId: user.uid,
-        senderName: "Admin",
-        senderType: "admin",
-        conversationId: selectedConversation,
-        timestamp: Timestamp.now(),
+      const token = localStorage.getItem("auth-token");
+      const response = await fetch(
+        `/api/messages?userId=${user.id}&otherUserId=${selectedClient.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.ok) {
+        const messagesData = await response.json();
+        setMessages(messagesData);
+      }
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !selectedClient || !user) return;
+
+    try {
+      const token = localStorage.getItem("auth-token");
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: newMessage,
+          senderId: user.id,
+          receiverId: selectedClient.id,
+        }),
       });
 
-      setNewMessage("");
+      if (response.ok) {
+        const sentMessage = await response.json();
+        setMessages((prev) => [...prev, sentMessage]);
+        setNewMessage("");
+        toast.success("Message sent!");
+      } else {
+        throw new Error("Failed to send message");
+      }
     } catch (error) {
       console.error("Error sending message:", error);
+      toast.error("Failed to send message");
     }
   };
 
