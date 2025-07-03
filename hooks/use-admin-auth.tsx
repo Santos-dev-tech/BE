@@ -1,60 +1,80 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { type User, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth"
-import { auth } from "@/lib/firebase"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-const ADMIN_WHITELIST = {
-  uid: "x7kAKlgsOESWBxk7soZBO7UbnrO2",
-  email: "zainsantos21@gmail.com",
-} as const
+interface User {
+  id: string;
+  email: string;
+  name: string | null;
+  role: string;
+}
 
 export function useAdminAuth() {
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted) return;
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user)
-
-      if (
-        user && // we have a user
-        user.uid === ADMIN_WHITELIST.uid && // UID matches
-        user.email === ADMIN_WHITELIST.email
-      ) {
-        // email matches
-        setIsAdmin(true)
-      } else {
-        setIsAdmin(false)
+    // Check for existing auth token
+    const token = localStorage.getItem("auth-token");
+    if (token) {
+      try {
+        const userData = JSON.parse(localStorage.getItem("user-data") || "{}");
+        if (userData.role === "ADMIN" || userData.role === "STYLIST") {
+          setUser(userData);
+          setIsAdmin(true);
+        }
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        localStorage.removeItem("auth-token");
+        localStorage.removeItem("user-data");
       }
-
-      setLoading(false)
-    })
-
-    return unsubscribe
-  }, [mounted])
+    }
+    setLoading(false);
+  }, [mounted]);
 
   const loginAdmin = async (email: string, password: string) => {
-    const result = await signInWithEmailAndPassword(auth, email, password)
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-    // Validate against local whitelist
-    if (result.user.uid !== ADMIN_WHITELIST.uid || result.user.email !== ADMIN_WHITELIST.email) {
-      await signOut(auth)
-      throw new Error("Unauthorized: Admin access only")
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Login failed");
     }
 
-    return result
-  }
+    const { user, token } = await response.json();
 
-  const logout = () => signOut(auth)
+    if (user.role !== "ADMIN" && user.role !== "STYLIST") {
+      throw new Error("Access denied. Admin or stylist role required.");
+    }
+
+    localStorage.setItem("auth-token", token);
+    localStorage.setItem("user-data", JSON.stringify(user));
+    setUser(user);
+    setIsAdmin(true);
+
+    return { user };
+  };
+
+  const logout = async () => {
+    localStorage.removeItem("auth-token");
+    localStorage.removeItem("user-data");
+    setUser(null);
+    setIsAdmin(false);
+    router.push("/auth/admin/signin");
+  };
 
   return {
     user,
@@ -62,5 +82,5 @@ export function useAdminAuth() {
     loading: loading || !mounted,
     loginAdmin,
     logout,
-  }
+  };
 }
