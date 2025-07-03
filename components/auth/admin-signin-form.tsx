@@ -71,7 +71,7 @@ export default function AdminSignInForm() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@beautyexpress.com"
+                  placeholder="beautyexpress777@gmail.com"
                   required
                 />
               </div>
