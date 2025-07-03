@@ -1,51 +1,66 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { toast } from "react-toastify" // Import toast for error notifications
+import type React from "react";
+import { toast } from "sonner";
 
-import { useState, useEffect, useRef } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { Send, MessageSquare, User } from "lucide-react"
-import { collection, query, orderBy, onSnapshot, addDoc, Timestamp, where } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { useAdminAuth } from "@/hooks/use-admin-auth"
+import { useState, useEffect, useRef } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Send, MessageSquare, User } from "lucide-react";
+import { useAdminAuth } from "@/hooks/use-admin-auth";
 
 interface Message {
-  id: string
-  text: string
-  senderId: string
-  senderName: string
-  senderType: "admin" | "customer"
-  timestamp: Timestamp
-  conversationId: string
+  id: string;
+  content: string;
+  senderId: string;
+  receiverId: string;
+  sender: {
+    id: string;
+    name: string;
+  };
+  receiver: {
+    id: string;
+    name: string;
+  };
+  createdAt: string;
+  isRead: boolean;
 }
 
-interface Conversation {
-  id: string
-  customerName: string
-  customerEmail: string
-  lastMessage: string
-  lastMessageTime: Timestamp
-  unreadCount: number
+interface Client {
+  id: string;
+  name: string;
+  email: string;
+  lastMessageTime?: string;
+  unreadCount: number;
 }
 
 export function MessagingCenter() {
-  const { user } = useAdminAuth()
-  const [conversations, setConversations] = useState<Conversation[]>([])
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [newMessage, setNewMessage] = useState("")
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { user } = useAdminAuth();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<
+    string | null
+  >(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Load conversations
-    const conversationsQuery = query(collection(db, "conversations"), orderBy("lastMessageTime", "desc"))
+    const conversationsQuery = query(
+      collection(db, "conversations"),
+      orderBy("lastMessageTime", "desc"),
+    );
 
     const unsubscribe = onSnapshot(
       conversationsQuery,
@@ -53,17 +68,17 @@ export function MessagingCenter() {
         const conversationsData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as Conversation[]
-        setConversations(conversationsData)
+        })) as Conversation[];
+        setConversations(conversationsData);
       },
       (err) => {
-        console.error("🔥 Firestore conversations listener:", err)
-        toast.error("Unable to load conversations – permissions missing.") // Use toast here
+        console.error("🔥 Firestore conversations listener:", err);
+        toast.error("Unable to load conversations – permissions missing."); // Use toast here
       },
-    )
+    );
 
-    return unsubscribe
-  }, [])
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     if (selectedConversation) {
@@ -72,26 +87,26 @@ export function MessagingCenter() {
         collection(db, "messages"),
         where("conversationId", "==", selectedConversation),
         orderBy("timestamp", "asc"),
-      )
+      );
 
       const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
         const messagesData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as Message[]
-        setMessages(messagesData)
-      })
+        })) as Message[];
+        setMessages(messagesData);
+      });
 
-      return unsubscribe
+      return unsubscribe;
     }
-  }, [selectedConversation])
+  }, [selectedConversation]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation || !user) return
+    if (!newMessage.trim() || !selectedConversation || !user) return;
 
     try {
       await addDoc(collection(db, "messages"), {
@@ -101,20 +116,20 @@ export function MessagingCenter() {
         senderType: "admin",
         conversationId: selectedConversation,
         timestamp: Timestamp.now(),
-      })
+      });
 
-      setNewMessage("")
+      setNewMessage("");
     } catch (error) {
-      console.error("Error sending message:", error)
+      console.error("Error sending message:", error);
     }
-  }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      sendMessage()
+      e.preventDefault();
+      sendMessage();
     }
-  }
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
@@ -133,7 +148,9 @@ export function MessagingCenter() {
               <div key={conversation.id}>
                 <div
                   className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                    selectedConversation === conversation.id ? "bg-blue-50 border-r-2 border-blue-500" : ""
+                    selectedConversation === conversation.id
+                      ? "bg-blue-50 border-r-2 border-blue-500"
+                      : ""
                   }`}
                   onClick={() => setSelectedConversation(conversation.id)}
                 >
@@ -146,16 +163,22 @@ export function MessagingCenter() {
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-gray-900 truncate">{conversation.customerName}</p>
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {conversation.customerName}
+                        </p>
                         {conversation.unreadCount > 0 && (
                           <Badge variant="destructive" className="ml-2">
                             {conversation.unreadCount}
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500 truncate">{conversation.lastMessage}</p>
+                      <p className="text-sm text-gray-500 truncate">
+                        {conversation.lastMessage}
+                      </p>
                       <p className="text-xs text-gray-400">
-                        {conversation.lastMessageTime?.toDate().toLocaleTimeString()}
+                        {conversation.lastMessageTime
+                          ?.toDate()
+                          .toLocaleTimeString()}
                       </p>
                     </div>
                   </div>
@@ -172,12 +195,14 @@ export function MessagingCenter() {
         <CardHeader>
           <CardTitle>
             {selectedConversation
-              ? conversations.find((c) => c.id === selectedConversation)?.customerName || "Customer"
+              ? conversations.find((c) => c.id === selectedConversation)
+                  ?.customerName || "Customer"
               : "Select a conversation"}
           </CardTitle>
           <CardDescription>
             {selectedConversation
-              ? conversations.find((c) => c.id === selectedConversation)?.customerEmail
+              ? conversations.find((c) => c.id === selectedConversation)
+                  ?.customerEmail
               : "Choose a customer to start messaging"}
           </CardDescription>
         </CardHeader>
@@ -194,13 +219,17 @@ export function MessagingCenter() {
                     >
                       <div
                         className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          message.senderType === "admin" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-900"
+                          message.senderType === "admin"
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-100 text-gray-900"
                         }`}
                       >
                         <p className="text-sm">{message.text}</p>
                         <p
                           className={`text-xs mt-1 ${
-                            message.senderType === "admin" ? "text-blue-100" : "text-gray-500"
+                            message.senderType === "admin"
+                              ? "text-blue-100"
+                              : "text-gray-500"
                           }`}
                         >
                           {message.timestamp?.toDate().toLocaleTimeString()}
@@ -237,5 +266,5 @@ export function MessagingCenter() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
