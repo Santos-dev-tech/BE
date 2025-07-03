@@ -60,15 +60,25 @@ export function useNotifications(userId: string | undefined) {
     data?: any,
   ) => {
     try {
-      await addDoc(collection(db, "notifications"), {
-        userId: targetUserId,
-        title,
-        message,
-        type,
-        read: false,
-        createdAt: Timestamp.now(),
-        data: data || null,
+      const token = localStorage.getItem("auth-token");
+      const response = await fetch("/api/notifications", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: targetUserId,
+          title,
+          message,
+          type,
+          data: data || null,
+        }),
       });
+
+      if (response.ok) {
+        await fetchNotifications(); // Refresh notifications
+      }
     } catch (error) {
       console.error("Error creating notification:", error);
     }
@@ -76,9 +86,28 @@ export function useNotifications(userId: string | undefined) {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      await updateDoc(doc(db, "notifications", notificationId), {
-        read: true,
+      const token = localStorage.getItem("auth-token");
+      const response = await fetch("/api/notifications", {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          notificationId,
+          isRead: true,
+        }),
       });
+
+      if (response.ok) {
+        // Update local state
+        setNotifications((prev) =>
+          prev.map((n) =>
+            n.id === notificationId ? { ...n, isRead: true } : n,
+          ),
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      }
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -86,12 +115,28 @@ export function useNotifications(userId: string | undefined) {
 
   const markAllAsRead = async () => {
     try {
-      const unreadNotifications = notifications.filter((n) => !n.read);
+      const token = localStorage.getItem("auth-token");
+      const unreadNotifications = notifications.filter((n) => !n.isRead);
+
       await Promise.all(
         unreadNotifications.map((notification) =>
-          updateDoc(doc(db, "notifications", notification.id), { read: true }),
+          fetch("/api/notifications", {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              notificationId: notification.id,
+              isRead: true,
+            }),
+          }),
         ),
       );
+
+      // Update local state
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setUnreadCount(0);
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
     }
