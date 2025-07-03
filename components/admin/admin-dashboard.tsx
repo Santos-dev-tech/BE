@@ -51,11 +51,29 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboardStats();
+
+    // Set up auto-refresh every 30 seconds for real-time updates
+    const interval = setInterval(fetchDashboardStats, 30000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  // Add effect to refresh stats when user changes tabs back to overview
+  useEffect(() => {
+    if (activeTab === "overview") {
+      fetchDashboardStats();
+    }
+  }, [activeTab]);
 
   const fetchDashboardStats = async () => {
     try {
       const token = localStorage.getItem("auth-token");
+
+      if (!token) {
+        console.error("No auth token found");
+        setLoading(false);
+        return;
+      }
 
       // Fetch bookings to calculate stats
       const bookingsResponse = await fetch("/api/bookings?role=ADMIN", {
