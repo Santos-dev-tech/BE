@@ -1,26 +1,169 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { useAdminAuth } from "@/hooks/use-admin-auth"
-import { BookingsManager } from "./bookings-manager"
-import { MessagingCenter } from "./messaging-center"
-import { Calendar, MessageSquare, Users, TrendingUp, LogOut, Crown } from "lucide-react"
-import { NotificationBell } from "@/components/notifications/notification-bell"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { useAdminAuth } from "@/hooks/use-admin-auth";
+import { BookingsManager } from "./bookings-manager";
+import { MessagingCenter } from "./messaging-center";
+import {
+  Calendar,
+  MessageSquare,
+  Users,
+  TrendingUp,
+  LogOut,
+  Crown,
+} from "lucide-react";
+import { NotificationBell } from "@/components/notifications/notification-bell";
+
+interface DashboardStats {
+  todayBookings: number;
+  pendingBookings: number;
+  totalClients: number;
+  todayRevenue: number;
+  recentActivity: Array<{
+    time: string;
+    action: string;
+    customer: string;
+    service: string;
+  }>;
+}
 
 export default function AdminDashboard() {
-  const { logout, user } = useAdminAuth()
-  const [activeTab, setActiveTab] = useState("overview")
+  const { logout, user } = useAdminAuth();
+  const [activeTab, setActiveTab] = useState("overview");
+  const [stats, setStats] = useState<DashboardStats>({
+    todayBookings: 0,
+    pendingBookings: 0,
+    totalClients: 0,
+    todayRevenue: 0,
+    recentActivity: [],
+  });
+  const [loading, setLoading] = useState(true);
 
-  const stats = [
-    { title: "Today's Bookings", value: "12", icon: Calendar, color: "text-blue-600" },
-    { title: "Pending Messages", value: "5", icon: MessageSquare, color: "text-green-600" },
-    { title: "Active Customers", value: "48", icon: Users, color: "text-purple-600" },
-    { title: "Revenue Today", value: "$1,240", icon: TrendingUp, color: "text-orange-600" },
-  ]
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
+
+  const fetchDashboardStats = async () => {
+    try {
+      const token = localStorage.getItem("auth-token");
+
+      // Fetch bookings to calculate stats
+      const bookingsResponse = await fetch("/api/bookings?role=ADMIN", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Fetch users to get client count
+      const usersResponse = await fetch("/api/users?role=CLIENT", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (bookingsResponse.ok && usersResponse.ok) {
+        const bookings = await bookingsResponse.json();
+        const clients = await usersResponse.json();
+
+        const today = new Date().toISOString().split("T")[0];
+        const todayBookings = bookings.filter(
+          (b: any) => new Date(b.date).toISOString().split("T")[0] === today,
+        );
+
+        const pendingBookings = bookings.filter(
+          (b: any) => b.status.toLowerCase() === "pending",
+        );
+
+        const completedTodayBookings = todayBookings.filter(
+          (b: any) => b.status.toLowerCase() === "completed",
+        );
+
+        const todayRevenue = completedTodayBookings.reduce(
+          (sum: number, b: any) => sum + (b.price || 0),
+          0,
+        );
+
+        // Create recent activity from latest bookings
+        const recentActivity = bookings.slice(0, 4).map((booking: any) => ({
+          time: new Date(booking.createdAt).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          action: getActionForStatus(booking.status),
+          customer: booking.customer.name,
+          service: booking.service.name,
+        }));
+
+        setStats({
+          todayBookings: todayBookings.length,
+          pendingBookings: pendingBookings.length,
+          totalClients: clients.length,
+          todayRevenue,
+          recentActivity,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getActionForStatus = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return "New booking";
+      case "confirmed":
+        return "Booking confirmed";
+      case "in_progress":
+        return "Service started";
+      case "completed":
+        return "Service completed";
+      case "cancelled":
+        return "Booking cancelled";
+      default:
+        return "Booking updated";
+    }
+  };
+
+  const dashboardStats = [
+    {
+      title: "Today's Bookings",
+      value: loading ? "..." : stats.todayBookings.toString(),
+      icon: Calendar,
+      color: "text-blue-600",
+    },
+    {
+      title: "Pending Bookings",
+      value: loading ? "..." : stats.pendingBookings.toString(),
+      icon: MessageSquare,
+      color: "text-green-600",
+    },
+    {
+      title: "Total Clients",
+      value: loading ? "..." : stats.totalClients.toString(),
+      icon: Users,
+      color: "text-purple-600",
+    },
+    {
+      title: "Revenue Today",
+      value: loading ? "..." : `$${stats.todayRevenue}`,
+      icon: TrendingUp,
+      color: "text-orange-600",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -31,8 +174,12 @@ export default function AdminDashboard() {
             <div className="flex items-center space-x-3">
               <Crown className="h-8 w-8 text-purple-600" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">BeautyExpress Admin</h1>
-                <p className="text-sm text-gray-500">Welcome back, {user?.email}</p>
+                <h1 className="text-xl font-bold text-gray-900">
+                  BeautyExpress Admin
+                </h1>
+                <p className="text-sm text-gray-500">
+                  Welcome back, {user?.email}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -47,7 +194,11 @@ export default function AdminDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
@@ -62,8 +213,12 @@ export default function AdminDashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                        <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                        <p className="text-sm font-medium text-gray-600">
+                          {stat.title}
+                        </p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {stat.value}
+                        </p>
                       </div>
                       <stat.icon className={`h-8 w-8 ${stat.color}`} />
                     </div>
@@ -76,17 +231,42 @@ export default function AdminDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Latest bookings and customer interactions</CardDescription>
+                <CardDescription>
+                  Latest bookings and customer interactions
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {[
-                    { time: "10:30 AM", action: "New booking", customer: "Sarah Johnson", service: "Gel Manicure" },
-                    { time: "11:15 AM", action: "Message received", customer: "Emma Davis", service: "Pedicure" },
-                    { time: "12:00 PM", action: "Booking confirmed", customer: "Lisa Chen", service: "Nail Art" },
-                    { time: "1:30 PM", action: "Payment received", customer: "Maria Garcia", service: "Full Set" },
+                    {
+                      time: "10:30 AM",
+                      action: "New booking",
+                      customer: "Sarah Johnson",
+                      service: "Gel Manicure",
+                    },
+                    {
+                      time: "11:15 AM",
+                      action: "Message received",
+                      customer: "Emma Davis",
+                      service: "Pedicure",
+                    },
+                    {
+                      time: "12:00 PM",
+                      action: "Booking confirmed",
+                      customer: "Lisa Chen",
+                      service: "Nail Art",
+                    },
+                    {
+                      time: "1:30 PM",
+                      action: "Payment received",
+                      customer: "Maria Garcia",
+                      service: "Full Set",
+                    },
                   ].map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between py-2 border-b last:border-b-0"
+                    >
                       <div className="flex items-center space-x-3">
                         <Badge variant="outline">{activity.time}</Badge>
                         <div>
@@ -113,5 +293,5 @@ export default function AdminDashboard() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
