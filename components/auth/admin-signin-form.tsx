@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
 import { Loader2, Crown, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function AdminSignInForm() {
   const [email, setEmail] = useState("");
