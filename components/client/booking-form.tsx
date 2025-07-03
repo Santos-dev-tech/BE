@@ -20,18 +20,17 @@ import { useNotifications } from "@/hooks/use-notifications"
 import { toast } from "sonner"
 
 const services = [
-  { id: "gel-manicure", name: "Gel Manicure", duration: 45, price: 35 },
-  { id: "classic-pedicure", name: "Classic Pedicure", duration: 60, price: 40 },
-  { id: "nail-art", name: "Nail Art", duration: 90, price: 55 },
-  { id: "full-set", name: "Full Set Acrylic", duration: 120, price: 65 },
-  { id: "gel-removal", name: "Gel Removal", duration: 30, price: 15 },
-  { id: "spa-package", name: "Spa Package", duration: 150, price: 85 },
+  { id: "Tips and gel", name: "Tips and gel Manicure", duration: 45, price: 500 },
+  { id: "Gel on natural nails", name: "Classic manicure", duration: 60, price: 300 },
+  { id: "Acrylics and nail-art", name: "Acrylics-nail Art", duration: 90, price: 1500 },
+  { id: "Pedicure", name: "Pedicure", duration: 120, price: 800 },
+  { id: "Gum gel", name: "Gum gel", duration: 30, price: 500 },
 ]
 
 const stylists = [
   {
     id: "sarah",
-    name: "Sarah Johnson",
+    name: "Stylist 1",
     specialties: ["Nail Art", "Gel Manicure"],
     rating: 4.9,
     experience: "5+ years",
@@ -39,7 +38,7 @@ const stylists = [
   },
   {
     id: "emma",
-    name: "Emma Davis",
+    name: "Stylist 2",
     specialties: ["Pedicure", "Spa Treatments"],
     rating: 4.8,
     experience: "3+ years",
@@ -47,10 +46,50 @@ const stylists = [
   },
   {
     id: "lisa",
-    name: "Lisa Chen",
+    name: "Stylist 3",
     specialties: ["Acrylic", "Full Set"],
     rating: 4.9,
     experience: "7+ years",
+    image: "/placeholder-user.jpg",
+  },
+  {
+    id: "maria",
+    name: "Stylist 4",
+    specialties: ["Gel Removal", "Nail Art"],
+    rating: 4.7,
+    experience: "4+ years",
+    image: "/placeholder-user.jpg",
+  },
+  {
+    id: "john",
+    name: "Stylist 5",
+    specialties: ["Manicure", "Pedicure"],
+    rating: 4.6,
+    experience: "2+ years",
+    image: "/placeholder-user.jpg",
+  },
+  {
+    id: "jane",
+    name: "Stylist 6",
+    specialties: ["Nail Art", "Spa Treatments"],
+    rating: 4.8,
+    experience: "6+ years",
+    image: "/placeholder-user.jpg",
+  },
+  {
+    id: "david",
+    name: "Stylist 7",
+    specialties: ["Acrylic", "Full Set"],
+    rating: 4.9,
+    experience: "8+ years",
+    image: "/placeholder-user.jpg",
+  },
+  {
+    id: "susan",
+    name: "Stylist 8",
+    specialties: ["Gel Manicure", "Pedicure"],
+    rating: 4.7,
+    experience: "3+ years",
     image: "/placeholder-user.jpg",
   },
 ]
@@ -174,7 +213,7 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
                         <h3 className="font-medium">{service.name}</h3>
                         <p className="text-sm text-gray-500">{service.duration} minutes</p>
                       </div>
-                      <Badge variant="secondary">${service.price}</Badge>
+                      <Badge variant="secondary">Ksh{service.price}</Badge>
                     </div>
                   </CardContent>
                 </Card>

@@ -5,8 +5,8 @@ import { type User, onAuthStateChanged, signInWithEmailAndPassword, signOut } fr
 import { auth } from "@/lib/firebase"
 
 const ADMIN_WHITELIST = {
-  uid: "x7kAKlgsOESWBxk7soZBO7UbnrO2",
-  email: "zainsantos21@gmail.com",
+  uid: "VJdxemjpYTfR3TAfAQDmZ9ucjxB2",
+  email: "beautyexpress211@gmail.com",
 } as const
 
 export function useAdminAuth() {

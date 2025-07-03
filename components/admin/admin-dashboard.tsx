@@ -19,7 +19,7 @@ export default function AdminDashboard() {
     { title: "Today's Bookings", value: "12", icon: Calendar, color: "text-blue-600" },
     { title: "Pending Messages", value: "5", icon: MessageSquare, color: "text-green-600" },
     { title: "Active Customers", value: "48", icon: Users, color: "text-purple-600" },
-    { title: "Revenue Today", value: "$1,240", icon: TrendingUp, color: "text-orange-600" },
+    { title: "Revenue Today", value: "Ksh1,240", icon: TrendingUp, color: "text-orange-600" },
   ]
 
   return (
@@ -81,10 +81,10 @@ export default function AdminDashboard() {
               <CardContent>
                 <div className="space-y-4">
                   {[
-                    { time: "10:30 AM", action: "New booking", customer: "Sarah Johnson", service: "Gel Manicure" },
-                    { time: "11:15 AM", action: "Message received", customer: "Emma Davis", service: "Pedicure" },
-                    { time: "12:00 PM", action: "Booking confirmed", customer: "Lisa Chen", service: "Nail Art" },
-                    { time: "1:30 PM", action: "Payment received", customer: "Maria Garcia", service: "Full Set" },
+                    { time: "10:30 AM", action: "New booking", customer: "Stylist 1", service: "Gel Manicure" },
+                    { time: "11:15 AM", action: "Message received", customer: " 2", service: "Pedicure" },
+                    { time: "12:00 PM", action: "Booking confirmed", customer: "Stylist 3", service: "Nail Art" },
+                    { time: "1:30 PM", action: "Payment received", customer: "Stylist 4", service: "Full Set" },
                   ].map((activity, index) => (
                     <div key={index} className="flex items-center justify-between py-2 border-b last:border-b-0">
                       <div className="flex items-center space-x-3">

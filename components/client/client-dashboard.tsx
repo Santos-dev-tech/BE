@@ -132,7 +132,7 @@ export default function ClientDashboard() {
                     <div>
                       <p className="text-sm font-medium text-gray-600">Total Spent</p>
                       <p className="text-2xl font-bold text-gray-900">
-                        ${pastBookings.reduce((sum, booking) => sum + (booking.price || 0), 0)}
+                        Ksh{pastBookings.reduce((sum, booking) => sum + (booking.price || 0), 0)}
                       </p>
                     </div>
                     <Sparkles className="h-8 w-8 text-purple-600" />
@@ -169,7 +169,7 @@ export default function ClientDashboard() {
                         </div>
                         <div className="text-right">
                           <Badge className={getStatusColor(booking.status)}>{booking.status}</Badge>
-                          <p className="text-sm font-medium mt-1">${booking.price}</p>
+                          <p className="text-sm font-medium mt-1">Ksh{booking.price}</p>
                         </div>
                       </div>
                     ))}
@@ -206,7 +206,7 @@ export default function ClientDashboard() {
                         </div>
                         <div className="text-right">
                           <Badge className={getStatusColor(booking.status)}>{booking.status}</Badge>
-                          <p className="text-sm font-medium mt-1">${booking.price}</p>
+                          <p className="text-sm font-medium mt-1">Ksh{booking.price}</p>
                         </div>
                       </div>
                     ))}
