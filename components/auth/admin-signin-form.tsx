@@ -25,6 +25,7 @@ export default function AdminSignInForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { loginAdmin } = useAdminAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +34,8 @@ export default function AdminSignInForm() {
 
     try {
       await loginAdmin(email, password);
+      // Redirect to admin dashboard on successful login
+      router.push("/admin");
     } catch (error: any) {
       setError(error.message || "Login failed");
     } finally {
