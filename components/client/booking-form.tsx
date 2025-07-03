@@ -23,10 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CalendarIcon, Clock, Star, User } from "lucide-react";
 import { format } from "date-fns";
-import { addDoc, collection, Timestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useClientAuth } from "@/hooks/use-client-auth";
-import { useNotifications } from "@/hooks/use-notifications";
 import { toast } from "sonner";
 
 const services = [
