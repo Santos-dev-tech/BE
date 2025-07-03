@@ -173,6 +173,11 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleManualRefresh = () => {
+    setLoading(true);
+    fetchDashboardStats();
+  };
+
   const dashboardStats = [
     {
       title: "Today's Bookings",
