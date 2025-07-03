@@ -21,6 +21,7 @@ import {
   TrendingUp,
   LogOut,
   Crown,
+  RefreshCw,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 
