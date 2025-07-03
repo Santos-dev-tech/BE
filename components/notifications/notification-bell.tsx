@@ -100,7 +100,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                     <div key={notification.id}>
                       <div
                         className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors ${
-                          !notification.read
+                          !notification.isRead
                             ? "bg-blue-50 border-l-2 border-blue-500"
                             : ""
                         }`}
@@ -110,7 +110,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                           {getNotificationIcon(notification.type)}
                           <div className="flex-1 min-w-0">
                             <p
-                              className={`text-sm font-medium ${!notification.read ? "text-gray-900" : "text-gray-600"}`}
+                              className={`text-sm font-medium ${!notification.isRead ? "text-gray-900" : "text-gray-600"}`}
                             >
                               {notification.title}
                             </p>
@@ -118,12 +118,12 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                               {notification.message}
                             </p>
                             <p className="text-xs text-gray-400 mt-1">
-                              {notification.createdAt
-                                ?.toDate()
-                                .toLocaleString()}
+                              {new Date(
+                                notification.createdAt,
+                              ).toLocaleString()}
                             </p>
                           </div>
-                          {!notification.read && (
+                          {!notification.isRead && (
                             <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                           )}
                         </div>
