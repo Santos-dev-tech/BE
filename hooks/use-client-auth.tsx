@@ -1,88 +1,136 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import {
-  type User,
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  updateProfile,
-} from "firebase/auth"
-import { doc, getDoc, setDoc } from "firebase/firestore"
-import { auth, db } from "@/lib/firebase"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface ClientProfile {
-  uid: string
-  email: string
-  displayName: string
-  phone: string
-  createdAt: Date
-  isClient: boolean
+  id: string;
+  email: string;
+  name: string;
+  phone: string | null;
+  role: string;
+  uid: string;
+  displayName: string;
 }
 
 export function useClientAuth() {
-  const [user, setUser] = useState<User | null>(null)
-  const [clientProfile, setClientProfile] = useState<ClientProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<any>(null);
+  const [clientProfile, setClientProfile] = useState<ClientProfile | null>(
+    null,
+  );
+  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted) return;
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user)
-
-      if (user) {
-        try {
-          const clientDoc = await getDoc(doc(db, "clients", user.uid))
-          if (clientDoc.exists()) {
-            setClientProfile(clientDoc.data() as ClientProfile)
-          } else {
-            // profile not created yet → sign-up flow will create
-            setClientProfile(null)
-          }
-        } catch (err: any) {
-          // Permission error or network failure – don't crash the app
-          console.error("Error fetching client profile:", err.message)
-          setClientProfile(null)
+    // Check for existing auth token
+    const token = localStorage.getItem("auth-token");
+    if (token) {
+      try {
+        const userData = JSON.parse(localStorage.getItem("user-data") || "{}");
+        if (userData.role === "CLIENT") {
+          const clientData = {
+            id: userData.id,
+            email: userData.email,
+            name: userData.name || "",
+            phone: userData.phone,
+            role: userData.role,
+            uid: userData.id, // for compatibility
+            displayName: userData.name || userData.email,
+          };
+          setUser(userData);
+          setClientProfile(clientData);
         }
-      } else {
-        setClientProfile(null)
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        localStorage.removeItem("auth-token");
+        localStorage.removeItem("user-data");
       }
+    }
+    setLoading(false);
+  }, [mounted]);
 
-      setLoading(false)
-    })
+  const registerClient = async (
+    email: string,
+    password: string,
+    displayName: string,
+    phone: string,
+  ) => {
+    const response = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        name: displayName,
+        phone,
+        role: "CLIENT",
+      }),
+    });
 
-    return unsubscribe
-  }, [mounted])
-
-  const registerClient = async (email: string, password: string, displayName: string, phone: string) => {
-    const result = await createUserWithEmailAndPassword(auth, email, password)
-    await updateProfile(result.user, { displayName })
-
-    const clientData = {
-      uid: result.user.uid,
-      email,
-      displayName,
-      phone,
-      createdAt: new Date(),
-      isClient: true,
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Registration failed");
     }
 
-    await setDoc(doc(db, "clients", result.user.uid), clientData)
-    setClientProfile(clientData)
+    const userData = await response.json();
 
-    return result
-  }
+    // Auto sign in after registration
+    await loginClient(email, password);
 
-  const loginClient = (email: string, password: string) => signInWithEmailAndPassword(auth, email, password)
+    return { user: userData };
+  };
 
-  const logout = () => signOut(auth)
+  const loginClient = async (email: string, password: string) => {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Login failed");
+    }
+
+    const { user, token } = await response.json();
+
+    if (user.role !== "CLIENT") {
+      throw new Error("Access denied. Client role required.");
+    }
+
+    localStorage.setItem("auth-token", token);
+    localStorage.setItem("user-data", JSON.stringify(user));
+
+    const clientData = {
+      id: user.id,
+      email: user.email,
+      name: user.name || "",
+      phone: user.phone,
+      role: user.role,
+      uid: user.id, // for compatibility
+      displayName: user.name || user.email,
+    };
+
+    setUser(user);
+    setClientProfile(clientData);
+
+    return { user };
+  };
+
+  const logout = async () => {
+    localStorage.removeItem("auth-token");
+    localStorage.removeItem("user-data");
+    setUser(null);
+    setClientProfile(null);
+    router.push("/auth/client/signin");
+  };
 
   return {
     user,
@@ -91,5 +139,5 @@ export function useClientAuth() {
     registerClient,
     loginClient,
     logout,
-  }
+  };
 }
