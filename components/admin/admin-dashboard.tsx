@@ -76,78 +76,21 @@ export default function AdminDashboard() {
         return;
       }
 
-      // Fetch bookings to calculate stats
-      const bookingsResponse = await fetch("/api/bookings?role=ADMIN", {
+      // Use dedicated stats endpoint
+      const response = await fetch("/api/dashboard/stats?role=ADMIN", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      // Fetch users to get client count
-      const usersResponse = await fetch("/api/users?role=CLIENT", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (bookingsResponse.ok && usersResponse.ok) {
-        const bookings = await bookingsResponse.json();
-        const clients = await usersResponse.json();
-
-        const today = new Date().toISOString().split("T")[0];
-        const todayBookings = bookings.filter(
-          (b: any) => new Date(b.date).toISOString().split("T")[0] === today,
-        );
-
-        const pendingBookings = bookings.filter(
-          (b: any) => b.status.toLowerCase() === "pending",
-        );
-
-        const completedTodayBookings = todayBookings.filter(
-          (b: any) => b.status.toLowerCase() === "completed",
-        );
-
-        const todayRevenue = completedTodayBookings.reduce(
-          (sum: number, b: any) => sum + (b.price || 0),
-          0,
-        );
-
-        // Create recent activity from latest bookings
-        const recentActivity = bookings.slice(0, 4).map((booking: any) => ({
-          time: new Date(booking.createdAt).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          action: getActionForStatus(booking.status),
-          customer: booking.customer.name,
-          service: booking.service.name,
-        }));
-
-        setStats({
-          todayBookings: todayBookings.length,
-          pendingBookings: pendingBookings.length,
-          totalClients: clients.length,
-          todayRevenue,
-          recentActivity,
-        });
+      if (response.ok) {
+        const statsData = await response.json();
+        setStats(statsData);
       } else {
-        console.error("Failed to fetch data:", {
-          bookingsStatus: bookingsResponse.status,
-          usersStatus: usersResponse.status,
-        });
-
-        // Try to get error details
-        if (!bookingsResponse.ok) {
-          const bookingsError = await bookingsResponse.text();
-          console.error("Bookings API error:", bookingsError);
-        }
-
-        if (!usersResponse.ok) {
-          const usersError = await usersResponse.text();
-          console.error("Users API error:", usersError);
-        }
+        console.error("Failed to fetch stats:", response.status);
+        const errorText = await response.text();
+        console.error("Stats API error:", errorText);
       }
     } catch (error) {
       console.error("Error fetching dashboard stats:", error);
