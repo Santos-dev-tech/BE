@@ -86,6 +86,61 @@ export default function AuthSelection() {
             </CardContent>
           </Card>
 
+          {/* Stylist Access */}
+          <Card className="relative overflow-hidden border-2 hover:border-emerald-300 transition-all duration-300 hover:shadow-lg">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full -translate-y-16 translate-x-16"></div>
+            <CardHeader className="relative">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="p-3 bg-emerald-100 rounded-full">
+                  <Sparkles className="h-8 w-8 text-emerald-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl text-emerald-800">
+                    I'm a Stylist
+                  </CardTitle>
+                  <CardDescription className="text-lg">
+                    Manage your appointments and serve clients
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3 text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                  <span>View your client bookings</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                  <span>Start and complete services</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                  <span>Chat with your clients</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                  <span>Manage your schedule</span>
+                </div>
+              </div>
+              <div className="pt-4 space-y-3">
+                <Link href="/auth/stylist/signin" className="block">
+                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                    Sign In as Stylist
+                  </Button>
+                </Link>
+                <Link href="/auth/stylist/signup" className="block">
+                  <Button
+                    variant="outline"
+                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-transparent"
+                  >
+                    Create Stylist Account
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Admin Access */}
           <Card className="relative overflow-hidden border-2 hover:border-yellow-300 transition-all duration-300 hover:shadow-lg">
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full -translate-y-16 translate-x-16"></div>
