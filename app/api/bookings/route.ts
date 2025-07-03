@@ -6,11 +6,37 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     const role = searchParams.get("role");
+    const stylistId = searchParams.get("stylistId");
 
     let bookings;
-    if (role === "ADMIN" || role === "STYLIST") {
-      // Admin/stylist can see all bookings
+    if (role === "ADMIN") {
+      // Admin can see all bookings
       bookings = await prisma.booking.findMany({
+        include: {
+          customer: {
+            select: { id: true, name: true, email: true, phone: true },
+          },
+          stylist: { select: { id: true, name: true } },
+          service: { select: { name: true, duration: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+    } else if (role === "STYLIST") {
+      // Stylist can see all bookings (they will filter on the frontend)
+      bookings = await prisma.booking.findMany({
+        include: {
+          customer: {
+            select: { id: true, name: true, email: true, phone: true },
+          },
+          stylist: { select: { id: true, name: true } },
+          service: { select: { name: true, duration: true } },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+    } else if (stylistId) {
+      // Filter by specific stylist
+      bookings = await prisma.booking.findMany({
+        where: { stylistId },
         include: {
           customer: {
             select: { id: true, name: true, email: true, phone: true },
