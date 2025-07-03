@@ -61,7 +61,11 @@ interface Booking {
   createdAt: Date;
 }
 
-export function BookingsManager() {
+interface BookingsManagerProps {
+  onBookingUpdate?: () => void;
+}
+
+export function BookingsManager({ onBookingUpdate }: BookingsManagerProps) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
