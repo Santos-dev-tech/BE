@@ -44,17 +44,7 @@ import {
   XCircle,
   Edit,
 } from "lucide-react";
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-  doc,
-  updateDoc,
-  type Timestamp,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface Booking {
   id: string;
