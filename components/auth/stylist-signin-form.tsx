@@ -146,10 +146,10 @@ export default function StylistSigninForm() {
 
             <div className="mt-6 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
               <h3 className="font-medium text-emerald-800 mb-2">
-                Stylist Login
+                Official Stylist Account
               </h3>
               <p className="text-sm text-emerald-700 mb-2">
-                Official BeautyExpress stylist account:
+                BeautyExpress certified stylist login:
               </p>
               <div className="text-sm text-emerald-600">
                 <p>
