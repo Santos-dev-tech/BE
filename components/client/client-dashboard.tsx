@@ -17,14 +17,6 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 import { BookingForm } from "./booking-form";
 import { ClientMessaging } from "./client-messaging";
 import { Calendar, User, Clock, LogOut, Sparkles } from "lucide-react";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  type Timestamp,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 interface Booking {
   id: string;
