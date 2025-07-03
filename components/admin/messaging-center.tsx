@@ -47,38 +47,45 @@ interface Client {
 
 export function MessagingCenter() {
   const { user } = useAdminAuth();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<
-    string | null
-  >(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Load conversations
-    const conversationsQuery = query(
-      collection(db, "conversations"),
-      orderBy("lastMessageTime", "desc"),
-    );
-
-    const unsubscribe = onSnapshot(
-      conversationsQuery,
-      (snapshot) => {
-        const conversationsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Conversation[];
-        setConversations(conversationsData);
-      },
-      (err) => {
-        console.error("🔥 Firestore conversations listener:", err);
-        toast.error("Unable to load conversations – permissions missing."); // Use toast here
-      },
-    );
-
-    return unsubscribe;
+    fetchClients();
   }, []);
+
+  const fetchClients = async () => {
+    try {
+      const token = localStorage.getItem("auth-token");
+      const response = await fetch("/api/users?role=CLIENT", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const clientsData = await response.json();
+        setClients(
+          clientsData.map((client: any) => ({
+            id: client.id,
+            name: client.name || client.email,
+            email: client.email,
+            unreadCount: 0, // TODO: Calculate actual unread count
+          })),
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+      toast.error("Unable to load clients");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (selectedConversation) {
