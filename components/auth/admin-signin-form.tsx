@@ -112,6 +112,21 @@ export default function AdminSignInForm() {
                 account setup.
               </p>
             </div>
+
+            <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <h3 className="font-medium text-yellow-800 mb-2">Admin Login</h3>
+              <p className="text-sm text-yellow-700 mb-2">
+                Official BeautyExpress admin account:
+              </p>
+              <div className="text-sm text-yellow-600">
+                <p>
+                  <strong>Email:</strong> beautyexpress777@gmail.com
+                </p>
+                <p>
+                  <strong>Password:</strong> admin123
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
