@@ -19,7 +19,7 @@ export default function AdminDashboard() {
     { title: "Today's Bookings", value: "12", icon: Calendar, color: "text-blue-600" },
     { title: "Pending Messages", value: "5", icon: MessageSquare, color: "text-green-600" },
     { title: "Active Customers", value: "48", icon: Users, color: "text-purple-600" },
-    { title: "Revenue Today", value: "Ksh1,240", icon: TrendingUp, color: "text-orange-600" },
+    { title: "Revenue Today.", value: "Ksh1,240", icon: TrendingUp, color: "text-orange-600" },
   ]
 
   return (
