@@ -266,6 +266,7 @@ export function BookingsManager() {
                             onClick={() =>
                               updateBookingStatus(booking.id, "confirmed")
                             }
+                            title="Confirm booking"
                           >
                             <CheckCircle className="h-4 w-4" />
                           </Button>
@@ -275,6 +276,7 @@ export function BookingsManager() {
                             onClick={() =>
                               updateBookingStatus(booking.id, "cancelled")
                             }
+                            title="Cancel booking"
                           >
                             <XCircle className="h-4 w-4" />
                           </Button>
@@ -283,12 +285,27 @@ export function BookingsManager() {
                       {booking.status === "confirmed" && (
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="default"
+                          onClick={() =>
+                            updateBookingStatus(booking.id, "in_progress")
+                          }
+                          className="bg-blue-600 hover:bg-blue-700"
+                          title="Start service"
+                        >
+                          Start Service
+                        </Button>
+                      )}
+                      {booking.status === "in_progress" && (
+                        <Button
+                          size="sm"
+                          variant="default"
                           onClick={() =>
                             updateBookingStatus(booking.id, "completed")
                           }
+                          className="bg-green-600 hover:bg-green-700"
+                          title="Complete service"
                         >
-                          Complete
+                          Complete Service
                         </Button>
                       )}
                       <Dialog
