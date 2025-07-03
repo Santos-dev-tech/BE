@@ -129,14 +129,9 @@ export default function AuthSelection() {
                     Sign In as Stylist
                   </Button>
                 </Link>
-                <Link href="/auth/stylist/signup" className="block">
-                  <Button
-                    variant="outline"
-                    className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50 bg-transparent"
-                  >
-                    Create Stylist Account
-                  </Button>
-                </Link>
+                <p className="text-xs text-gray-500 text-center">
+                  Stylist access is by invitation only
+                </p>
               </div>
             </CardContent>
           </Card>
