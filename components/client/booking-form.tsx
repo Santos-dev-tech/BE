@@ -67,13 +67,56 @@ interface BookingFormProps {
 
 export function BookingForm({ onBookingComplete }: BookingFormProps) {
   const { clientProfile } = useClientAuth();
-  const { createNotification } = useNotifications(clientProfile?.uid);
   const [selectedService, setSelectedService] = useState("");
   const [selectedStylist, setSelectedStylist] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [services, setServices] = useState<any[]>([]);
+  const [stylists, setStylists] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Load services and stylists from API
+    const loadData = async () => {
+      try {
+        const [servicesRes, stylistsRes] = await Promise.all([
+          fetch("/api/services"),
+          fetch("/api/users?role=STYLIST"),
+        ]);
+
+        if (servicesRes.ok) {
+          const servicesData = await servicesRes.json();
+          setServices(
+            servicesData.map((service: any) => ({
+              id: service.id,
+              name: service.name,
+              duration: service.duration,
+              price: service.price,
+            })),
+          );
+        }
+
+        if (stylistsRes.ok) {
+          const stylistsData = await stylistsRes.json();
+          setStylists(
+            stylistsData.map((stylist: any) => ({
+              id: stylist.id,
+              name: stylist.name,
+              specialties: ["Nail Art", "Gel Manicure"], // Default specialties
+              rating: 4.9,
+              experience: "5+ years",
+              image: "/placeholder-user.jpg",
+            })),
+          );
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const selectedServiceData = services.find((s) => s.id === selectedService);
   const selectedStylistData = stylists.find((s) => s.id === selectedStylist);
