@@ -128,46 +128,39 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
     setLoading(true);
 
     try {
+      const token = localStorage.getItem("auth-token");
       const bookingData = {
-        customerName: clientProfile.displayName,
-        customerEmail: clientProfile.email,
-        customerPhone: clientProfile.phone,
-        customerId: clientProfile.uid,
-        service: selectedServiceData?.name,
+        customerId: clientProfile.id,
         serviceId: selectedService,
-        stylist: selectedStylistData?.name,
         stylistId: selectedStylist,
         date: format(selectedDate, "yyyy-MM-dd"),
         time: selectedTime,
-        status: "pending",
         notes,
         price: selectedServiceData?.price,
-        duration: selectedServiceData?.duration,
-        createdAt: Timestamp.now(),
       };
 
-      await addDoc(collection(db, "bookings"), bookingData);
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
 
-      // Create notification for admin
-      await createNotification(
-        "x7kAKlgsOESWBxk7soZBO7UbnrO2", // Admin UID
-        "New Booking Request",
-        `${clientProfile.displayName} requested ${selectedServiceData?.name} with ${selectedStylistData?.name}`,
-        "booking",
-        bookingData,
-      );
-
-      // Create notification for client
-      await createNotification(
-        clientProfile.uid,
-        "Booking Submitted",
-        `Your booking request for ${selectedServiceData?.name} has been submitted and is pending confirmation.`,
-        "booking",
-        bookingData,
-      );
-
-      toast.success("Booking submitted successfully!");
-      onBookingComplete();
+      if (response.ok) {
+        toast.success("Booking submitted successfully!");
+        // Reset form
+        setSelectedService("");
+        setSelectedStylist("");
+        setSelectedDate(undefined);
+        setSelectedTime("");
+        setNotes("");
+        onBookingComplete();
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to submit booking");
+      }
     } catch (error) {
       console.error("Error creating booking:", error);
       toast.error("Failed to submit booking. Please try again.");
