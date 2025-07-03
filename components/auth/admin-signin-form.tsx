@@ -1,42 +1,51 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useAdminAuth } from "@/hooks/use-admin-auth"
-import { Loader2, Crown, ArrowLeft } from "lucide-react"
-import Link from "next/link"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAdminAuth } from "@/hooks/use-admin-auth";
+import { Loader2, Crown, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function AdminSignInForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const { loginAdmin } = useAdminAuth()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { loginAdmin } = useAdminAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      await loginAdmin(email, password)
+      await loginAdmin(email, password);
     } catch (error: any) {
-      setError(error.message || "Login failed")
+      setError(error.message || "Login failed");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 to-orange-50">
       <div className="w-full max-w-md">
-        <Link href="/auth" className="inline-flex items-center text-yellow-600 hover:text-yellow-700 mb-6">
+        <Link
+          href="/auth"
+          className="inline-flex items-center text-yellow-600 hover:text-yellow-700 mb-6"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to selection
         </Link>
@@ -46,8 +55,12 @@ export default function AdminSignInForm() {
             <div className="flex justify-center mb-4">
               <Crown className="h-12 w-12 text-yellow-600" />
             </div>
-            <CardTitle className="text-2xl font-bold text-yellow-800">Admin Sign In</CardTitle>
-            <CardDescription>Access the BeautyExpress admin dashboard</CardDescription>
+            <CardTitle className="text-2xl font-bold text-yellow-800">
+              Admin Sign In
+            </CardTitle>
+            <CardDescription>
+              Access the BeautyExpress admin dashboard
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,7 +90,11 @@ export default function AdminSignInForm() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              <Button type="submit" className="w-full bg-yellow-600 hover:bg-yellow-700" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full bg-yellow-600 hover:bg-yellow-700"
+                disabled={loading}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -91,15 +108,13 @@ export default function AdminSignInForm() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Don't have an admin account?{" "}
-                <Link href="/auth/admin/signup" className="text-yellow-600 hover:underline">
-                  Create one here
-                </Link>
+                Admin access is restricted. Contact system administrator for
+                account setup.
               </p>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }
