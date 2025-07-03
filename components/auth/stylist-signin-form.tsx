@@ -139,13 +139,8 @@ export default function StylistSigninForm() {
 
             <div className="text-center mt-6">
               <p className="text-sm text-gray-600">
-                Don't have a stylist account?{" "}
-                <Link
-                  href="/auth/stylist/signup"
-                  className="text-emerald-600 hover:underline"
-                >
-                  Create one here
-                </Link>
+                Stylist access is by invitation only. Contact admin for account
+                setup.
               </p>
             </div>
 
