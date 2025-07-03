@@ -183,7 +183,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <NotificationBell userId="x7kAKlgsOESWBxk7soZBO7UbnrO2" />
+              {user?.id && <NotificationBell userId={user.id} />}
               <Button variant="outline" onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
