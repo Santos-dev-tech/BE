@@ -1,12 +1,31 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -14,103 +33,154 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Calendar, Clock, Phone, Mail, CheckCircle, XCircle, Edit } from "lucide-react"
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, type Timestamp } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import { toast } from "react-toastify"
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Calendar,
+  Clock,
+  Phone,
+  Mail,
+  CheckCircle,
+  XCircle,
+  Edit,
+} from "lucide-react";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  updateDoc,
+  type Timestamp,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { toast } from "react-toastify";
 
 interface Booking {
-  id: string
-  customerName: string
-  customerEmail: string
-  customerPhone: string
-  service: string
-  stylist: string
-  date: string
-  time: string
-  status: "pending" | "confirmed" | "completed" | "cancelled"
-  notes?: string
-  createdAt: Timestamp
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  service: string;
+  stylist: string;
+  date: string;
+  time: string;
+  status: "pending" | "confirmed" | "completed" | "cancelled";
+  notes?: string;
+  createdAt: Timestamp;
 }
 
 export function BookingsManager() {
-  const [bookings, setBookings] = useState<Booking[]>([])
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([])
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   useEffect(() => {
-    const q = query(collection(db, "bookings"), orderBy("createdAt", "desc"))
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const bookingsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Booking[]
-        setBookings(bookingsData)
-      },
-      (err) => {
-        console.error("🔥 Firestore bookings listener:", err)
-        // Surface the issue in the UI (optional)
-        toast.error("Unable to load bookings – permissions missing.")
-      },
-    )
+    const fetchBookings = async () => {
+      try {
+        const token = localStorage.getItem("auth-token");
+        const userData = JSON.parse(localStorage.getItem("user-data") || "{}");
 
-    return unsubscribe
-  }, [])
+        const response = await fetch(`/api/bookings?role=${userData.role}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const bookingsData = await response.json();
+          const formattedBookings = bookingsData.map((booking: any) => ({
+            id: booking.id,
+            customerName: booking.customer.name,
+            customerEmail: booking.customer.email,
+            customerPhone: booking.customer.phone,
+            service: booking.service.name,
+            stylist: booking.stylist.name,
+            date: new Date(booking.date).toLocaleDateString(),
+            time: booking.time,
+            status: booking.status.toLowerCase(),
+            notes: booking.notes,
+            price: booking.price,
+            createdAt: new Date(booking.createdAt),
+          }));
+          setBookings(formattedBookings);
+        } else {
+          toast.error("Unable to load bookings");
+        }
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+        toast.error("Error loading bookings");
+      }
+    };
+
+    fetchBookings();
+
+    // Set up polling for real-time updates
+    const interval = setInterval(fetchBookings, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
-    let filtered = bookings
+    let filtered = bookings;
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter((booking) => booking.status === statusFilter)
+      filtered = filtered.filter((booking) => booking.status === statusFilter);
     }
 
     if (searchTerm) {
       filtered = filtered.filter(
         (booking) =>
-          booking.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          booking.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          booking.customerName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          booking.customerEmail
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
           booking.service.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
+      );
     }
 
-    setFilteredBookings(filtered)
-  }, [bookings, statusFilter, searchTerm])
+    setFilteredBookings(filtered);
+  }, [bookings, statusFilter, searchTerm]);
 
-  const updateBookingStatus = async (bookingId: string, status: Booking["status"]) => {
+  const updateBookingStatus = async (
+    bookingId: string,
+    status: Booking["status"],
+  ) => {
     try {
-      await updateDoc(doc(db, "bookings", bookingId), { status })
+      await updateDoc(doc(db, "bookings", bookingId), { status });
     } catch (error) {
-      console.error("Error updating booking status:", error)
+      console.error("Error updating booking status:", error);
     }
-  }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "confirmed":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-100 text-blue-800";
       case "completed":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "cancelled":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Bookings Management</CardTitle>
-        <CardDescription>Manage customer appointments and reservations</CardDescription>
+        <CardDescription>
+          Manage customer appointments and reservations
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {/* Filters */}
@@ -154,7 +224,9 @@ export function BookingsManager() {
                   <TableCell>
                     <div>
                       <div className="font-medium">{booking.customerName}</div>
-                      <div className="text-sm text-gray-500">{booking.customerEmail}</div>
+                      <div className="text-sm text-gray-500">
+                        {booking.customerEmail}
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>{booking.service}</TableCell>
@@ -168,7 +240,9 @@ export function BookingsManager() {
                   </TableCell>
                   <TableCell>{booking.stylist}</TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(booking.status)}>{booking.status}</Badge>
+                    <Badge className={getStatusColor(booking.status)}>
+                      {booking.status}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
@@ -177,14 +251,18 @@ export function BookingsManager() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateBookingStatus(booking.id, "confirmed")}
+                            onClick={() =>
+                              updateBookingStatus(booking.id, "confirmed")
+                            }
                           >
                             <CheckCircle className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateBookingStatus(booking.id, "cancelled")}
+                            onClick={() =>
+                              updateBookingStatus(booking.id, "cancelled")
+                            }
                           >
                             <XCircle className="h-4 w-4" />
                           </Button>
@@ -194,40 +272,59 @@ export function BookingsManager() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => updateBookingStatus(booking.id, "completed")}
+                          onClick={() =>
+                            updateBookingStatus(booking.id, "completed")
+                          }
                         >
                           Complete
                         </Button>
                       )}
-                      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                      <Dialog
+                        open={isEditDialogOpen}
+                        onOpenChange={setIsEditDialogOpen}
+                      >
                         <DialogTrigger asChild>
-                          <Button size="sm" variant="outline" onClick={() => setSelectedBooking(booking)}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setSelectedBooking(booking)}
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>Booking Details</DialogTitle>
-                            <DialogDescription>View and manage booking information</DialogDescription>
+                            <DialogDescription>
+                              View and manage booking information
+                            </DialogDescription>
                           </DialogHeader>
                           {selectedBooking && (
                             <div className="space-y-4">
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <Label>Customer Name</Label>
-                                  <p className="font-medium">{selectedBooking.customerName}</p>
+                                  <p className="font-medium">
+                                    {selectedBooking.customerName}
+                                  </p>
                                 </div>
                                 <div>
                                   <Label>Service</Label>
-                                  <p className="font-medium">{selectedBooking.service}</p>
+                                  <p className="font-medium">
+                                    {selectedBooking.service}
+                                  </p>
                                 </div>
                                 <div>
                                   <Label>Date</Label>
-                                  <p className="font-medium">{selectedBooking.date}</p>
+                                  <p className="font-medium">
+                                    {selectedBooking.date}
+                                  </p>
                                 </div>
                                 <div>
                                   <Label>Time</Label>
-                                  <p className="font-medium">{selectedBooking.time}</p>
+                                  <p className="font-medium">
+                                    {selectedBooking.time}
+                                  </p>
                                 </div>
                               </div>
                               <div>
@@ -246,7 +343,9 @@ export function BookingsManager() {
                               {selectedBooking.notes && (
                                 <div>
                                   <Label>Notes</Label>
-                                  <p className="mt-1 text-sm text-gray-600">{selectedBooking.notes}</p>
+                                  <p className="mt-1 text-sm text-gray-600">
+                                    {selectedBooking.notes}
+                                  </p>
                                 </div>
                               )}
                             </div>
@@ -262,5 +361,5 @@ export function BookingsManager() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
