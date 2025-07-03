@@ -165,59 +165,67 @@ export function MessagingCenter() {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
-      {/* Conversations List */}
+      {/* Clients List */}
       <Card className="lg:col-span-1">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <MessageSquare className="h-5 w-5" />
-            <span>Conversations</span>
+            <span>Clients</span>
           </CardTitle>
-          <CardDescription>Customer messages and inquiries</CardDescription>
+          <CardDescription>Available clients for messaging</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <ScrollArea className="h-[500px]">
-            {conversations.map((conversation) => (
-              <div key={conversation.id}>
-                <div
-                  className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                    selectedConversation === conversation.id
-                      ? "bg-blue-50 border-r-2 border-blue-500"
-                      : ""
-                  }`}
-                  onClick={() => setSelectedConversation(conversation.id)}
-                >
-                  <div className="flex items-start space-x-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src="/placeholder-user.jpg" />
-                      <AvatarFallback>
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {conversation.customerName}
+            {loading ? (
+              <div className="p-4 text-center text-gray-500">
+                <div className="animate-pulse">Loading clients...</div>
+              </div>
+            ) : clients.length > 0 ? (
+              clients.map((client) => (
+                <div key={client.id}>
+                  <div
+                    className={`p-4 cursor-pointer hover:bg-gray-50 ${
+                      selectedClient?.id === client.id
+                        ? "bg-blue-50 border-r-2 border-blue-500"
+                        : ""
+                    }`}
+                    onClick={() => setSelectedClient(client)}
+                  >
+                    <div className="flex items-start space-x-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src="/placeholder-user.jpg" />
+                        <AvatarFallback>
+                          {client.name[0]?.toUpperCase() || (
+                            <User className="h-4 w-4" />
+                          )}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {client.name}
+                          </p>
+                          {client.unreadCount > 0 && (
+                            <Badge variant="destructive" className="ml-2">
+                              {client.unreadCount}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-500 truncate">
+                          {client.email}
                         </p>
-                        {conversation.unreadCount > 0 && (
-                          <Badge variant="destructive" className="ml-2">
-                            {conversation.unreadCount}
-                          </Badge>
-                        )}
                       </div>
-                      <p className="text-sm text-gray-500 truncate">
-                        {conversation.lastMessage}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {conversation.lastMessageTime
-                          ?.toDate()
-                          .toLocaleTimeString()}
-                      </p>
                     </div>
                   </div>
+                  <Separator />
                 </div>
-                <Separator />
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                <MessageSquare className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                <p>No clients found</p>
               </div>
-            ))}
+            )}
           </ScrollArea>
         </CardContent>
       </Card>
