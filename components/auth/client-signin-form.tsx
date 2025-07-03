@@ -25,6 +25,7 @@ export default function ClientSignInForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { loginClient } = useClientAuth();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +34,8 @@ export default function ClientSignInForm() {
 
     try {
       await loginClient(email, password);
+      // Redirect to client dashboard on successful login
+      router.push("/client");
     } catch (error: any) {
       setError(error.message || "Login failed");
     } finally {
