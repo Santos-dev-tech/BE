@@ -268,7 +268,11 @@ export default function AdminDashboard() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {dashboardStats.map((stat, index) => (
-                <Card key={index}>
+                <Card
+                  key={index}
+                  className="cursor-pointer hover:shadow-md transition-shadow duration-200"
+                  onClick={handleManualRefresh}
+                >
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -277,6 +281,9 @@ export default function AdminDashboard() {
                         </p>
                         <p className="text-2xl font-bold text-gray-900">
                           {stat.value}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Click to refresh
                         </p>
                       </div>
                       <stat.icon className={`h-8 w-8 ${stat.color}`} />
