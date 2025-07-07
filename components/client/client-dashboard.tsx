@@ -16,7 +16,15 @@ import { useClientAuth } from "@/hooks/use-client-auth";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { BookingForm } from "./booking-form";
 import { ClientMessaging } from "./client-messaging";
-import { Calendar, User, Clock, LogOut, Sparkles } from "lucide-react";
+import {
+  Calendar,
+  User,
+  Clock,
+  LogOut,
+  Sparkles,
+  TestTube,
+} from "lucide-react";
+import { ClientTest } from "@/components/test/client-test";
 import {
   collection,
   query,
