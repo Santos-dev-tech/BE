@@ -131,15 +131,12 @@ export function useSampleData() {
           },
         ];
 
-        // Initialize data (only run once by checking if data exists)
-        const checkExisting = await fetch(
-          `https://firestore.googleapis.com/v1/projects/beautyexpres-2f9c5/databases/(default)/documents/bookings`,
-          {
-            method: "GET",
-          },
-        ).catch(() => null);
+        // Initialize data (only run once - use localStorage to track)
+        const sampleDataInitialized = localStorage.getItem(
+          "sampleDataInitialized",
+        );
 
-        if (!checkExisting) {
+        if (!sampleDataInitialized) {
           // Add bookings
           for (const booking of sampleBookings) {
             await addDoc(collection(db, "bookings"), booking);
@@ -163,6 +160,7 @@ export function useSampleData() {
             await addDoc(collection(db, "messages"), message);
           }
 
+          localStorage.setItem("sampleDataInitialized", "true");
           console.log("Sample data initialized");
         }
       } catch (error) {
