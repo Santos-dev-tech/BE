@@ -106,13 +106,9 @@ export function MessagingCenter() {
         (c) => c.id === selectedConversation,
       );
       if (selectedConv && selectedConv.unreadCount > 0) {
-        import("firebase/firestore").then(({ doc, updateDoc }) => {
-          updateDoc(doc(db, "conversations", selectedConversation), {
-            unreadCount: 0,
-          }).catch((err) =>
-            console.error("Error resetting unread count:", err),
-          );
-        });
+        updateDoc(doc(db, "conversations", selectedConversation), {
+          unreadCount: 0,
+        }).catch((err) => console.error("Error resetting unread count:", err));
       }
 
       return unsubscribe;
