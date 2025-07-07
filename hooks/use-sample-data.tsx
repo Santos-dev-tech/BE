@@ -142,39 +142,46 @@ export function useSampleData() {
         );
 
         if (!sampleDataInitialized) {
-          // Add bookings
-          for (const booking of sampleBookings) {
-            await addDoc(collection(db, "bookings"), booking);
-          }
+          console.log("Initializing sample data as admin...");
 
-          // Add clients
-          for (const client of sampleClients) {
-            await setDoc(doc(db, "clients", client.uid), client);
-          }
+          try {
+            // Add bookings
+            for (const booking of sampleBookings) {
+              await addDoc(collection(db, "bookings"), booking);
+            }
 
-          // Add conversations
-          for (const conversation of sampleConversations) {
-            await setDoc(
-              doc(db, "conversations", conversation.id),
-              conversation,
-            );
-          }
+            // Add clients
+            for (const client of sampleClients) {
+              await setDoc(doc(db, "clients", client.uid), client);
+            }
 
-          // Add messages
-          for (const message of sampleMessages) {
-            await addDoc(collection(db, "messages"), message);
-          }
+            // Add conversations
+            for (const conversation of sampleConversations) {
+              await setDoc(
+                doc(db, "conversations", conversation.id),
+                conversation,
+              );
+            }
 
-          localStorage.setItem("sampleDataInitialized", "true");
-          console.log("Sample data initialized");
+            // Add messages
+            for (const message of sampleMessages) {
+              await addDoc(collection(db, "messages"), message);
+            }
+
+            localStorage.setItem("sampleDataInitialized", "true");
+            console.log("Sample data initialized successfully");
+          } catch (dataError) {
+            console.error("Error adding sample data:", dataError);
+            // Don't throw - just log and continue
+          }
         }
       } catch (error) {
         console.error("Error initializing sample data:", error);
       }
     };
 
-    // Run once on mount
-    const timer = setTimeout(initializeSampleData, 1000);
+    // Run once on mount with delay to ensure auth is ready
+    const timer = setTimeout(initializeSampleData, 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isAdmin, user]);
 }
