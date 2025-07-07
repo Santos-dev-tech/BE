@@ -31,6 +31,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useSampleData } from "@/hooks/use-sample-data";
 
 interface DashboardStats {
   todaysBookings: number;
