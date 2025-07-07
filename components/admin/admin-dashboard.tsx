@@ -32,7 +32,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useSampleData } from "@/hooks/use-sample-data";
-import { SystemTest } from "@/components/test/system-test";
+import { AdminUtilities } from "@/components/admin/admin-utilities";
 
 interface DashboardStats {
   todaysBookings: number;
