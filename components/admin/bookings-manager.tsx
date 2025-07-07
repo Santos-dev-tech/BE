@@ -91,8 +91,13 @@ export function BookingsManager() {
       },
       (err) => {
         console.error("🔥 Firestore bookings listener:", err);
-        // Surface the issue in the UI (optional)
-        toast.error("Unable to load bookings – permissions missing.");
+        if (err.code === "permission-denied") {
+          toast.error(
+            "Unable to load bookings – please update Firestore security rules.",
+          );
+        } else {
+          toast.error("Unable to load bookings – connection error.");
+        }
       },
     );
 
