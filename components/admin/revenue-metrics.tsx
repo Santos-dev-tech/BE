@@ -80,21 +80,25 @@ export function RevenueMetrics() {
       const thirtyDaysAgo = subDays(now, 30);
       const sevenDaysAgo = subDays(now, 7);
 
-      // Fetch all completed bookings
+      // Fetch all bookings and filter completed ones in memory to avoid index requirement
       const bookingsQuery = query(
         collection(db, "bookings"),
-        where("status", "==", "completed"),
         orderBy("createdAt", "desc"),
       );
 
       const snapshot = await getDocs(bookingsQuery);
-      const bookings = snapshot.docs.map((doc) => ({
+      const allBookings = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as any[];
 
+      // Filter completed bookings in memory
+      const bookings = allBookings.filter(
+        (booking) => booking.status === "completed",
+      );
+
       console.log(
-        `📊 Fetched ${bookings.length} completed bookings for metrics`,
+        `📊 Fetched ${allBookings.length} total bookings, ${bookings.length} completed for metrics`,
       );
 
       // Calculate daily revenue for last 7 days
