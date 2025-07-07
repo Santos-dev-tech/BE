@@ -242,7 +242,7 @@ export function HeroSection() {
               <MapPin className="h-8 w-8 text-purple-600" />
               <h3 className="font-semibold">Location</h3>
               <p className="text-gray-600 text-center">
-                123 Beauty Street
+                Philadelphia House, Room 8
                 <br />
                 Nairobi, Kenya
               </p>
@@ -250,12 +250,12 @@ export function HeroSection() {
             <div className="flex flex-col items-center space-y-2">
               <Phone className="h-8 w-8 text-purple-600" />
               <h3 className="font-semibold">Phone</h3>
-              <p className="text-gray-600">+254 123 456 789</p>
+              <p className="text-gray-600">+254727796332</p>
             </div>
             <div className="flex flex-col items-center space-y-2">
               <Mail className="h-8 w-8 text-purple-600" />
               <h3 className="font-semibold">Email</h3>
-              <p className="text-gray-600">hello@beautyexpress.co.ke</p>
+              <p className="text-gray-600">beautyexpress211@gmail.com</p>
             </div>
           </div>
         </div>
@@ -271,6 +271,7 @@ export function HeroSection() {
           &copy; 2025 BeautyExpress. All rights reserved. Crafted with ❤️ for
           beautiful nails.
         </p>
+        <p className="mt-2 text-sm">Santos*Kerosi</p>
       </footer>
     </div>
   );

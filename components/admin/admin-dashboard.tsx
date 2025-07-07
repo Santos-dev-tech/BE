@@ -26,6 +26,7 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 import { useSampleData } from "@/hooks/use-sample-data";
 import { AdminUtilities } from "@/components/admin/admin-utilities";
 import { useSystemValidation } from "@/hooks/use-system-validation";
+import { RevenueMetrics } from "@/components/admin/revenue-metrics";
 
 export default function AdminDashboard() {
   const { logout, user } = useAdminAuth();
@@ -52,7 +53,16 @@ export default function AdminDashboard() {
     }
   }, [stats, isValidated]);
 
-  const statsDisplay = [
+  interface StatDisplay {
+    title: string;
+    value: string;
+    icon: any;
+    color: string;
+    status: string;
+    showMetrics?: boolean;
+  }
+
+  const statsDisplay: StatDisplay[] = [
     {
       title: "Today's Bookings",
       value: stats.todaysBookings.toString(),
@@ -80,6 +90,7 @@ export default function AdminDashboard() {
       icon: TrendingUp,
       color: "text-orange-600",
       status: isValidated ? "✅" : "⏳",
+      showMetrics: true,
     },
   ];
 
@@ -134,7 +145,7 @@ export default function AdminDashboard() {
                 >
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
-                      <div>
+                      <div className="flex-1">
                         <div className="flex items-center space-x-2">
                           <p className="text-sm font-medium text-gray-600">
                             {stat.title}
@@ -148,6 +159,11 @@ export default function AdminDashboard() {
                           <p className="text-xs text-gray-500">
                             Last updated: {lastUpdate.toLocaleTimeString()}
                           </p>
+                        )}
+                        {stat.showMetrics && (
+                          <div className="mt-2">
+                            <RevenueMetrics />
+                          </div>
                         )}
                       </div>
                       <stat.icon className={`h-8 w-8 ${stat.color}`} />
