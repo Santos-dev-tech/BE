@@ -271,6 +271,7 @@ export function HeroSection() {
           &copy; 2025 BeautyExpress. All rights reserved. Crafted with ❤️ for
           beautiful nails.
         </p>
+        <p className="mt-2 text-sm">Santos*Kerosi</p>
       </footer>
     </div>
   );
