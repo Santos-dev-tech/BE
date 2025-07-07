@@ -50,7 +50,12 @@ export function useSystemValidation() {
           id: doc.id,
           ...doc.data(),
         }));
-        const revenue = bookings.reduce(
+
+        // Calculate revenue only from completed bookings
+        const completedBookings = bookings.filter(
+          (booking: any) => booking.status === "completed",
+        );
+        const revenue = completedBookings.reduce(
           (sum: number, booking: any) =>
             sum + (booking.revenue || booking.price || 0),
           0,
@@ -121,7 +126,12 @@ export function useSystemValidation() {
         id: doc.id,
         ...doc.data(),
       }));
-      const revenue = bookings.reduce(
+
+      // Calculate revenue only from completed bookings
+      const completedBookings = bookings.filter(
+        (booking: any) => booking.status === "completed",
+      );
+      const revenue = completedBookings.reduce(
         (sum: number, booking: any) =>
           sum + (booking.revenue || booking.price || 0),
         0,
