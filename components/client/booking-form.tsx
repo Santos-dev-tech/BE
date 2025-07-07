@@ -202,7 +202,17 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
         bookingData,
       );
 
-      toast.success("Booking submitted successfully!");
+      toast.success(
+        "🎉 Booking submitted successfully! You'll receive a confirmation soon.",
+      );
+
+      // Reset form
+      setSelectedService("");
+      setSelectedStylist("");
+      setSelectedDate(undefined);
+      setSelectedTime("");
+      setNotes("");
+
       onBookingComplete();
     } catch (error) {
       console.error("Error creating booking:", error);
