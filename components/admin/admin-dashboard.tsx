@@ -69,46 +69,43 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const today = new Date();
-    const todayStart = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-    );
-    const todayEnd = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate() + 1,
-    );
+    const todayString = today.toISOString().split("T")[0];
 
     // Listen to today's bookings
     const bookingsQuery = query(
       collection(db, "bookings"),
-      where("date", ">=", todayStart.toISOString().split("T")[0]),
-      where("date", "<", todayEnd.toISOString().split("T")[0]),
+      where("date", "==", todayString),
     );
 
-    const unsubscribeBookings = onSnapshot(bookingsQuery, (snapshot) => {
-      const bookings = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Booking[];
-      const todaysBookings = bookings.length;
-      const revenueToday = bookings.reduce(
-        (sum, booking) => sum + (booking.revenue || 0),
-        0,
-      );
+    const unsubscribeBookings = onSnapshot(
+      bookingsQuery,
+      (snapshot) => {
+        const bookings = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Booking[];
+        const todaysBookings = bookings.length;
+        const revenueToday = bookings.reduce(
+          (sum, booking) => sum + (booking.revenue || 0),
+          0,
+        );
 
-      setStats((prev) => ({ ...prev, todaysBookings, revenueToday }));
+        setStats((prev) => ({ ...prev, todaysBookings, revenueToday }));
 
-      // Set recent activity
-      const activities = bookings.slice(0, 4).map((booking) => ({
-        time: new Date().toLocaleTimeString(),
-        action: `Booking ${booking.status}`,
-        customer: "Customer",
-        service: "Beauty Service",
-      }));
-      setRecentActivity(activities);
-    });
+        // Set recent activity
+        const activities = bookings.slice(0, 4).map((booking, index) => ({
+          time: new Date(Date.now() - index * 3600000).toLocaleTimeString(),
+          action: `Booking ${booking.status}`,
+          customer: "Customer",
+          service: "Beauty Service",
+        }));
+        setRecentActivity(activities);
+      },
+      (error) => {
+        console.error("Error fetching bookings:", error);
+        setStats((prev) => ({ ...prev, todaysBookings: 0, revenueToday: 0 }));
+      },
+    );
 
     // Listen to conversations for pending messages
     const conversationsQuery = query(collection(db, "conversations"));
@@ -125,14 +122,25 @@ export default function AdminDashboard() {
         );
         setStats((prev) => ({ ...prev, pendingMessages }));
       },
+      (error) => {
+        console.error("Error fetching conversations:", error);
+        setStats((prev) => ({ ...prev, pendingMessages: 0 }));
+      },
     );
 
     // Listen to clients for active customers count
     const clientsQuery = query(collection(db, "clients"));
-    const unsubscribeClients = onSnapshot(clientsQuery, (snapshot) => {
-      const activeCustomers = snapshot.docs.length;
-      setStats((prev) => ({ ...prev, activeCustomers }));
-    });
+    const unsubscribeClients = onSnapshot(
+      clientsQuery,
+      (snapshot) => {
+        const activeCustomers = snapshot.docs.length;
+        setStats((prev) => ({ ...prev, activeCustomers }));
+      },
+      (error) => {
+        console.error("Error fetching clients:", error);
+        setStats((prev) => ({ ...prev, activeCustomers: 0 }));
+      },
+    );
 
     return () => {
       unsubscribeBookings();
