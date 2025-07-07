@@ -289,6 +289,10 @@ export default function AdminDashboard() {
           <TabsContent value="messages">
             <MessagingCenter />
           </TabsContent>
+
+          <TabsContent value="test">
+            <SystemTest />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
