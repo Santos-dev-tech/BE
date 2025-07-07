@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Trash2, RefreshCw, Database, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { FunctionalityTest } from "@/components/test/functionality-test";
 
 export function AdminUtilities() {
   const [loading, setLoading] = useState(false);
