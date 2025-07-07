@@ -56,92 +56,21 @@ export default function AdminDashboard() {
   useSampleData();
   const { stats, isValidated, lastUpdate } = useSystemValidation();
 
+  // Generate some recent activity based on stats
   useEffect(() => {
-    const today = new Date();
-    const todayString = today.toISOString().split("T")[0];
-
-    // Listen to today's bookings
-    const bookingsQuery = query(
-      collection(db, "bookings"),
-      where("date", "==", todayString),
-    );
-
-    const unsubscribeBookings = onSnapshot(
-      bookingsQuery,
-      (snapshot) => {
-        const bookings = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Booking[];
-        const todaysBookings = bookings.length;
-        const revenueToday = bookings.reduce(
-          (sum, booking) => sum + (booking.revenue || 0),
-          0,
-        );
-
-        setStats((prev) => ({ ...prev, todaysBookings, revenueToday }));
-
-        // Set recent activity
-        const activities = bookings.slice(0, 4).map((booking, index) => ({
+    if (isValidated && stats.todaysBookings > 0) {
+      const activities = Array.from(
+        { length: Math.min(4, stats.todaysBookings) },
+        (_, index) => ({
           time: new Date(Date.now() - index * 3600000).toLocaleTimeString(),
-          action: `Booking ${booking.status}`,
-          customer: "Customer",
+          action: `Booking ${index === 0 ? "confirmed" : index === 1 ? "pending" : "completed"}`,
+          customer: `Customer ${index + 1}`,
           service: "Beauty Service",
-        }));
-        setRecentActivity(activities);
-      },
-      (error) => {
-        console.error("Error fetching bookings:", error);
-        setStats((prev) => ({ ...prev, todaysBookings: 0, revenueToday: 0 }));
-      },
-    );
-
-    // Listen to conversations for pending messages
-    const conversationsQuery = query(collection(db, "conversations"));
-    const unsubscribeConversations = onSnapshot(
-      conversationsQuery,
-      (snapshot) => {
-        const conversations = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Conversation[];
-        const pendingMessages = conversations.reduce(
-          (sum, conv) => sum + (conv.unreadCount || 0),
-          0,
-        );
-        setStats((prev) => ({ ...prev, pendingMessages }));
-      },
-      (error) => {
-        console.error("Error fetching conversations:", error);
-        setStats((prev) => ({ ...prev, pendingMessages: 0 }));
-      },
-    );
-
-    // Listen to clients for active customers count
-    const clientsQuery = query(collection(db, "clients"));
-    const unsubscribeClients = onSnapshot(
-      clientsQuery,
-      (snapshot) => {
-        const activeCustomers = snapshot.docs.length;
-        setStats((prev) => ({ ...prev, activeCustomers }));
-      },
-      (error) => {
-        console.error("Error fetching clients:", error);
-        if (error.code === "permission-denied") {
-          console.log(
-            "Permission denied for clients collection. Please update Firestore security rules.",
-          );
-        }
-        setStats((prev) => ({ ...prev, activeCustomers: 0 }));
-      },
-    );
-
-    return () => {
-      unsubscribeBookings();
-      unsubscribeConversations();
-      unsubscribeClients();
-    };
-  }, []);
+        }),
+      );
+      setRecentActivity(activities);
+    }
+  }, [stats, isValidated]);
 
   const statsDisplay = [
     {
