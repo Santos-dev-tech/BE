@@ -1,9 +1,15 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Crown, Sparkles, Users, Shield } from "lucide-react"
-import Link from "next/link"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Crown, Sparkles, Users, Shield } from "lucide-react";
+import Link from "next/link";
 
 export default function AuthSelection() {
   return (
@@ -16,8 +22,12 @@ export default function AuthSelection() {
               <Crown className="h-8 w-8 text-yellow-500 absolute -top-2 -right-2" />
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to BeautyExpress</h1>
-          <p className="text-xl text-gray-600">Choose how you'd like to access our platform</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Welcome to BeautyExpress
+          </h1>
+          <p className="text-xl text-gray-600">
+            Choose how you'd like to access our platform
+          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -30,7 +40,9 @@ export default function AuthSelection() {
                   <Users className="h-8 w-8 text-purple-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-2xl text-purple-800">I'm a Client</CardTitle>
+                  <CardTitle className="text-2xl text-purple-800">
+                    I'm a Client
+                  </CardTitle>
                   <CardDescription className="text-lg">
                     Book appointments and manage your beauty journey
                   </CardDescription>
@@ -58,7 +70,9 @@ export default function AuthSelection() {
               </div>
               <div className="pt-4 space-y-3">
                 <Link href="/auth/client/signin" className="block">
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700">Sign In as Client</Button>
+                  <Button className="w-full bg-purple-600 hover:bg-purple-700">
+                    Sign In as Client
+                  </Button>
                 </Link>
                 <Link href="/auth/client/signup" className="block">
                   <Button
@@ -81,7 +95,9 @@ export default function AuthSelection() {
                   <Shield className="h-8 w-8 text-yellow-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-2xl text-yellow-800">I'm an Admin</CardTitle>
+                  <CardTitle className="text-2xl text-yellow-800">
+                    I'm an Admin
+                  </CardTitle>
                   <CardDescription className="text-lg">
                     Manage bookings, clients, and business operations
                   </CardDescription>
@@ -107,16 +123,10 @@ export default function AuthSelection() {
                   <span>Control all operations</span>
                 </div>
               </div>
-              <div className="pt-4 space-y-3">
+              <div className="pt-4">
                 <Link href="/auth/admin/signin" className="block">
-                  <Button className="w-full bg-yellow-600 hover:bg-yellow-700">Sign In as Admin</Button>
-                </Link>
-                <Link href="/auth/admin/signup" className="block">
-                  <Button
-                    variant="outline"
-                    className="w-full border-yellow-300 text-yellow-700 hover:bg-yellow-50 bg-transparent"
-                  >
-                    Create Admin Account
+                  <Button className="w-full bg-yellow-600 hover:bg-yellow-700">
+                    Admin Sign In
                   </Button>
                 </Link>
               </div>
@@ -127,12 +137,15 @@ export default function AuthSelection() {
         <div className="text-center mt-12">
           <p className="text-gray-500">
             Need help? Contact us at{" "}
-            <a href="mailto:support@beautyexpress.com" className="text-purple-600 hover:underline">
+            <a
+              href="mailto:support@beautyexpress.com"
+              className="text-purple-600 hover:underline"
+            >
               support@beautyexpress.com
             </a>
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
