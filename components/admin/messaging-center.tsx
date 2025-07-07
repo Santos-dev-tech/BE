@@ -79,7 +79,13 @@ export function MessagingCenter() {
       },
       (err) => {
         console.error("🔥 Firestore conversations listener:", err);
-        toast.error("Unable to load conversations – permissions missing.");
+        if (err.code === "permission-denied") {
+          toast.error(
+            "Unable to load conversations – please update Firestore security rules.",
+          );
+        } else {
+          toast.error("Unable to load conversations – connection error.");
+        }
       },
     );
 
