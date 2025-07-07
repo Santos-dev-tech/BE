@@ -53,6 +53,7 @@ interface ServiceStats {
 }
 
 export function RevenueMetrics() {
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dailyRevenue, setDailyRevenue] = useState<RevenueData[]>([]);
   const [weeklyRevenue, setWeeklyRevenue] = useState<RevenueData[]>([]);
@@ -65,6 +66,13 @@ export function RevenueMetrics() {
     topService: "",
   });
 
+  // Auto-load data when dialog opens
+  useEffect(() => {
+    if (open && dailyRevenue.length === 0) {
+      fetchRevenueData();
+    }
+  }, [open, dailyRevenue.length]);
+
   const fetchRevenueData = async () => {
     setLoading(true);
     try {
@@ -72,11 +80,10 @@ export function RevenueMetrics() {
       const thirtyDaysAgo = subDays(now, 30);
       const sevenDaysAgo = subDays(now, 7);
 
-      // Fetch all completed bookings from the last 30 days
+      // Fetch all completed bookings
       const bookingsQuery = query(
         collection(db, "bookings"),
         where("status", "==", "completed"),
-        where("createdAt", ">=", Timestamp.fromDate(thirtyDaysAgo)),
         orderBy("createdAt", "desc"),
       );
 
@@ -85,6 +92,10 @@ export function RevenueMetrics() {
         id: doc.id,
         ...doc.data(),
       })) as any[];
+
+      console.log(
+        `📊 Fetched ${bookings.length} completed bookings for metrics`,
+      );
 
       // Calculate daily revenue for last 7 days
       const dailyData: RevenueData[] = [];
@@ -185,7 +196,7 @@ export function RevenueMetrics() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="ml-2">
           <BarChart3 className="mr-2 h-4 w-4" />
