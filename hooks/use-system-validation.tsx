@@ -61,6 +61,10 @@ export function useSystemValidation() {
           0,
         );
 
+        console.log(
+          `📊 Revenue calculation: ${bookings.length} total bookings, ${completedBookings.length} completed, Ksh${revenue} revenue`,
+        );
+
         // Test 2: Check conversations
         const conversationsSnapshot = await getDocs(
           collection(db, "conversations"),
