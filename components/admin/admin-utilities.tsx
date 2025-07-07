@@ -130,6 +130,8 @@ export function AdminUtilities() {
           </div>
         </CardContent>
       </Card>
+
+      <FunctionalityTest />
     </div>
   );
 }
