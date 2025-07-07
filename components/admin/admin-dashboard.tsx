@@ -64,6 +64,9 @@ export default function AdminDashboard() {
   });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
+  // Initialize sample data
+  useSampleData();
+
   useEffect(() => {
     const today = new Date();
     const todayStart = new Date(
