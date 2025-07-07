@@ -1,26 +1,168 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { useAdminAuth } from "@/hooks/use-admin-auth"
-import { BookingsManager } from "./bookings-manager"
-import { MessagingCenter } from "./messaging-center"
-import { Calendar, MessageSquare, Users, TrendingUp, LogOut, Crown } from "lucide-react"
-import { NotificationBell } from "@/components/notifications/notification-bell"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { useAdminAuth } from "@/hooks/use-admin-auth";
+import { BookingsManager } from "./bookings-manager";
+import { MessagingCenter } from "./messaging-center";
+import {
+  Calendar,
+  MessageSquare,
+  Users,
+  TrendingUp,
+  LogOut,
+  Crown,
+} from "lucide-react";
+import { NotificationBell } from "@/components/notifications/notification-bell";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  Timestamp,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+interface DashboardStats {
+  todaysBookings: number;
+  pendingMessages: number;
+  activeCustomers: number;
+  revenueToday: number;
+}
+
+interface Booking {
+  id: string;
+  status: string;
+  date: string;
+  createdAt: Timestamp;
+  revenue?: number;
+}
+
+interface Conversation {
+  id: string;
+  unreadCount: number;
+}
 
 export default function AdminDashboard() {
-  const { logout, user } = useAdminAuth()
-  const [activeTab, setActiveTab] = useState("overview")
+  const { logout, user } = useAdminAuth();
+  const [activeTab, setActiveTab] = useState("overview");
+  const [stats, setStats] = useState<DashboardStats>({
+    todaysBookings: 0,
+    pendingMessages: 0,
+    activeCustomers: 0,
+    revenueToday: 0,
+  });
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
-  const stats = [
-    { title: "Today's Bookings", value: "12", icon: Calendar, color: "text-blue-600" },
-    { title: "Pending Messages", value: "5", icon: MessageSquare, color: "text-green-600" },
-    { title: "Active Customers", value: "48", icon: Users, color: "text-purple-600" },
-    { title: "Revenue Today.", value: "Ksh1,240", icon: TrendingUp, color: "text-orange-600" },
-  ]
+  useEffect(() => {
+    const today = new Date();
+    const todayStart = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate(),
+    );
+    const todayEnd = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      today.getDate() + 1,
+    );
+
+    // Listen to today's bookings
+    const bookingsQuery = query(
+      collection(db, "bookings"),
+      where("date", ">=", todayStart.toISOString().split("T")[0]),
+      where("date", "<", todayEnd.toISOString().split("T")[0]),
+    );
+
+    const unsubscribeBookings = onSnapshot(bookingsQuery, (snapshot) => {
+      const bookings = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Booking[];
+      const todaysBookings = bookings.length;
+      const revenueToday = bookings.reduce(
+        (sum, booking) => sum + (booking.revenue || 0),
+        0,
+      );
+
+      setStats((prev) => ({ ...prev, todaysBookings, revenueToday }));
+
+      // Set recent activity
+      const activities = bookings.slice(0, 4).map((booking) => ({
+        time: new Date().toLocaleTimeString(),
+        action: `Booking ${booking.status}`,
+        customer: "Customer",
+        service: "Beauty Service",
+      }));
+      setRecentActivity(activities);
+    });
+
+    // Listen to conversations for pending messages
+    const conversationsQuery = query(collection(db, "conversations"));
+    const unsubscribeConversations = onSnapshot(
+      conversationsQuery,
+      (snapshot) => {
+        const conversations = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Conversation[];
+        const pendingMessages = conversations.reduce(
+          (sum, conv) => sum + (conv.unreadCount || 0),
+          0,
+        );
+        setStats((prev) => ({ ...prev, pendingMessages }));
+      },
+    );
+
+    // Listen to clients for active customers count
+    const clientsQuery = query(collection(db, "clients"));
+    const unsubscribeClients = onSnapshot(clientsQuery, (snapshot) => {
+      const activeCustomers = snapshot.docs.length;
+      setStats((prev) => ({ ...prev, activeCustomers }));
+    });
+
+    return () => {
+      unsubscribeBookings();
+      unsubscribeConversations();
+      unsubscribeClients();
+    };
+  }, []);
+
+  const statsDisplay = [
+    {
+      title: "Today's Bookings",
+      value: stats.todaysBookings.toString(),
+      icon: Calendar,
+      color: "text-blue-600",
+    },
+    {
+      title: "Pending Messages",
+      value: stats.pendingMessages.toString(),
+      icon: MessageSquare,
+      color: "text-green-600",
+    },
+    {
+      title: "Active Customers",
+      value: stats.activeCustomers.toString(),
+      icon: Users,
+      color: "text-purple-600",
+    },
+    {
+      title: "Revenue Today",
+      value: `Ksh${stats.revenueToday.toLocaleString()}`,
+      icon: TrendingUp,
+      color: "text-orange-600",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -31,8 +173,12 @@ export default function AdminDashboard() {
             <div className="flex items-center space-x-3">
               <Crown className="h-8 w-8 text-purple-600" />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">BeautyExpress Admin</h1>
-                <p className="text-sm text-gray-500">Welcome back, {user?.email}</p>
+                <h1 className="text-xl font-bold text-gray-900">
+                  BeautyExpress Admin
+                </h1>
+                <p className="text-sm text-gray-500">
+                  Welcome back, {user?.email}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -47,7 +193,11 @@ export default function AdminDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
@@ -62,8 +212,12 @@ export default function AdminDashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                        <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                        <p className="text-sm font-medium text-gray-600">
+                          {stat.title}
+                        </p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {stat.value}
+                        </p>
                       </div>
                       <stat.icon className={`h-8 w-8 ${stat.color}`} />
                     </div>
@@ -76,17 +230,42 @@ export default function AdminDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>Latest bookings and customer interactions</CardDescription>
+                <CardDescription>
+                  Latest bookings and customer interactions
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {[
-                    { time: "10:30 AM", action: "New booking", customer: "Stylist 1", service: "Gel Manicure" },
-                    { time: "11:15 AM", action: "Message received", customer: " 2", service: "Pedicure" },
-                    { time: "12:00 PM", action: "Booking confirmed", customer: "Stylist 3", service: "Nail Art" },
-                    { time: "1:30 PM", action: "Payment received", customer: "Stylist 4", service: "Full Set" },
+                    {
+                      time: "10:30 AM",
+                      action: "New booking",
+                      customer: "Stylist 1",
+                      service: "Gel Manicure",
+                    },
+                    {
+                      time: "11:15 AM",
+                      action: "Message received",
+                      customer: " 2",
+                      service: "Pedicure",
+                    },
+                    {
+                      time: "12:00 PM",
+                      action: "Booking confirmed",
+                      customer: "Stylist 3",
+                      service: "Nail Art",
+                    },
+                    {
+                      time: "1:30 PM",
+                      action: "Payment received",
+                      customer: "Stylist 4",
+                      service: "Full Set",
+                    },
                   ].map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between py-2 border-b last:border-b-0"
+                    >
                       <div className="flex items-center space-x-3">
                         <Badge variant="outline">{activity.time}</Badge>
                         <div>
@@ -113,5 +292,5 @@ export default function AdminDashboard() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
