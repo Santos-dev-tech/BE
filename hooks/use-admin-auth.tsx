@@ -38,7 +38,8 @@ export function useAdminAuth() {
     const unsubscribe = onAuthStateChanged(
       auth,
       (user) => {
-        console.log("Auth state changed:", user?.email, user?.uid);
+        console.log("🔐 Auth state changed:", user?.email, user?.uid);
+        console.log("🔍 Admin whitelist:", ADMIN_WHITELIST);
         clearTimeout(timeout);
         setUser(user);
 
@@ -48,10 +49,15 @@ export function useAdminAuth() {
           user.email === ADMIN_WHITELIST.email
         ) {
           // email matches
-          console.log("Admin user verified");
+          console.log("✅ Admin user verified");
           setIsAdmin(true);
         } else {
-          console.log("Not admin user");
+          console.log(
+            "❌ Not admin user - UID match:",
+            user?.uid === ADMIN_WHITELIST.uid,
+            "Email match:",
+            user?.email === ADMIN_WHITELIST.email,
+          );
           setIsAdmin(false);
         }
 
