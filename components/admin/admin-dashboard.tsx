@@ -220,7 +220,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
-            <TabsTrigger value="test">System Test</TabsTrigger>
+            <TabsTrigger value="utilities">Utilities</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
