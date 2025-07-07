@@ -290,8 +290,8 @@ export default function AdminDashboard() {
             <MessagingCenter />
           </TabsContent>
 
-          <TabsContent value="test">
-            <SystemTest />
+          <TabsContent value="utilities">
+            <AdminUtilities />
           </TabsContent>
         </Tabs>
       </div>
