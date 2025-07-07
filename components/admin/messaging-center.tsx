@@ -26,6 +26,8 @@ import {
   addDoc,
   Timestamp,
   where,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAdminAuth } from "@/hooks/use-admin-auth";
