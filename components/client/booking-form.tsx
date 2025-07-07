@@ -178,6 +178,7 @@ export function BookingForm({ onBookingComplete }: BookingFormProps) {
         status: "pending",
         notes,
         price: selectedServiceData?.price,
+        revenue: selectedServiceData?.price, // Add revenue field for admin tracking
         duration: selectedServiceData?.duration,
         createdAt: Timestamp.now(),
       };
