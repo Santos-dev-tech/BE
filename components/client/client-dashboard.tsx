@@ -327,6 +327,10 @@ export default function ClientDashboard() {
               />
             )}
           </TabsContent>
+
+          <TabsContent value="test">
+            <ClientTest />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
