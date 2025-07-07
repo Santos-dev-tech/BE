@@ -27,26 +27,6 @@ import { useSampleData } from "@/hooks/use-sample-data";
 import { AdminUtilities } from "@/components/admin/admin-utilities";
 import { useSystemValidation } from "@/hooks/use-system-validation";
 
-interface DashboardStats {
-  todaysBookings: number;
-  pendingMessages: number;
-  activeCustomers: number;
-  revenueToday: number;
-}
-
-interface Booking {
-  id: string;
-  status: string;
-  date: string;
-  createdAt: Timestamp;
-  revenue?: number;
-}
-
-interface Conversation {
-  id: string;
-  unreadCount: number;
-}
-
 export default function AdminDashboard() {
   const { logout, user } = useAdminAuth();
   const [activeTab, setActiveTab] = useState("overview");
