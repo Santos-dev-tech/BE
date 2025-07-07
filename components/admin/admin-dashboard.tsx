@@ -53,7 +53,16 @@ export default function AdminDashboard() {
     }
   }, [stats, isValidated]);
 
-  const statsDisplay = [
+  interface StatDisplay {
+    title: string;
+    value: string;
+    icon: any;
+    color: string;
+    status: string;
+    showMetrics?: boolean;
+  }
+
+  const statsDisplay: StatDisplay[] = [
     {
       title: "Today's Bookings",
       value: stats.todaysBookings.toString(),
