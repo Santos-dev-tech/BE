@@ -148,17 +148,20 @@ export function useSampleData() {
           console.log("Initializing sample data as admin...");
 
           try {
-            // Add bookings
-            for (const booking of sampleBookings) {
-              await addDoc(collection(db, "bookings"), booking);
-            }
-
-            // Add clients
+            // Add clients first
+            console.log("Adding sample clients...");
             for (const client of sampleClients) {
               await setDoc(doc(db, "clients", client.uid), client);
             }
 
+            // Add bookings
+            console.log("Adding sample bookings...");
+            for (const booking of sampleBookings) {
+              await addDoc(collection(db, "bookings"), booking);
+            }
+
             // Add conversations
+            console.log("Adding sample conversations...");
             for (const conversation of sampleConversations) {
               await setDoc(
                 doc(db, "conversations", conversation.id),
@@ -167,16 +170,30 @@ export function useSampleData() {
             }
 
             // Add messages
+            console.log("Adding sample messages...");
             for (const message of sampleMessages) {
               await addDoc(collection(db, "messages"), message);
             }
 
+            // Add a notification for testing
+            console.log("Adding sample notifications...");
+            await addDoc(collection(db, "notifications"), {
+              userId: user.uid,
+              title: "Welcome Admin!",
+              message: "Sample data has been initialized successfully",
+              type: "message",
+              read: false,
+              createdAt: Timestamp.now(),
+            });
+
             localStorage.setItem("sampleDataInitialized", "true");
-            console.log("Sample data initialized successfully");
+            console.log("✅ Sample data initialized successfully");
           } catch (dataError) {
-            console.error("Error adding sample data:", dataError);
+            console.error("❌ Error adding sample data:", dataError);
             // Don't throw - just log and continue
           }
+        } else {
+          console.log("Sample data already initialized");
         }
       } catch (error) {
         console.error("Error initializing sample data:", error);
