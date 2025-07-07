@@ -18,6 +18,7 @@ export function useSampleData() {
 
         const sampleBookings = [
           {
+            customerId: "client1",
             customerName: "Sarah Johnson",
             customerEmail: "sarah@example.com",
             customerPhone: "+1234567890",
@@ -31,6 +32,7 @@ export function useSampleData() {
             revenue: 450,
           },
           {
+            customerId: "client2",
             customerName: "Maria Garcia",
             customerEmail: "maria@example.com",
             customerPhone: "+1234567891",
@@ -44,6 +46,7 @@ export function useSampleData() {
             revenue: 350,
           },
           {
+            customerId: "client3",
             customerName: "Lisa Chen",
             customerEmail: "lisa@example.com",
             customerPhone: "+1234567892",
