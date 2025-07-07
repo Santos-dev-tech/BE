@@ -3,9 +3,14 @@
 import { useEffect } from "react";
 import { collection, doc, setDoc, addDoc, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useAdminAuth } from "@/hooks/use-admin-auth";
 
 export function useSampleData() {
+  const { isAdmin, user } = useAdminAuth();
+
   useEffect(() => {
+    if (!isAdmin || !user) return;
+
     const initializeSampleData = async () => {
       try {
         // Add sample bookings for today
