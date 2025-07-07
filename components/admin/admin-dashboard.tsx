@@ -50,16 +50,11 @@ interface Conversation {
 export default function AdminDashboard() {
   const { logout, user } = useAdminAuth();
   const [activeTab, setActiveTab] = useState("overview");
-  const [stats, setStats] = useState<DashboardStats>({
-    todaysBookings: 0,
-    pendingMessages: 0,
-    activeCustomers: 0,
-    revenueToday: 0,
-  });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
-  // Initialize sample data
+  // Initialize sample data and get real-time stats
   useSampleData();
+  const { stats, isValidated, lastUpdate } = useSystemValidation();
 
   useEffect(() => {
     const today = new Date();
