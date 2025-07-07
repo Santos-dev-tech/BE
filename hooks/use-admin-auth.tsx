@@ -29,11 +29,11 @@ export function useAdminAuth() {
 
     // Set a timeout to prevent infinite loading
     const timeout = setTimeout(() => {
-      if (loading) {
-        console.log("Auth timeout - setting loading to false");
-        setLoading(false);
-      }
-    }, 5000);
+      console.log("Auth timeout reached - forcing loading to false");
+      setLoading(false);
+      setUser(null);
+      setIsAdmin(false);
+    }, 3000);
 
     const unsubscribe = onAuthStateChanged(
       auth,
