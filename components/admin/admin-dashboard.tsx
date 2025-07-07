@@ -236,47 +236,28 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[
-                    {
-                      time: "10:30 AM",
-                      action: "New booking",
-                      customer: "Stylist 1",
-                      service: "Gel Manicure",
-                    },
-                    {
-                      time: "11:15 AM",
-                      action: "Message received",
-                      customer: " 2",
-                      service: "Pedicure",
-                    },
-                    {
-                      time: "12:00 PM",
-                      action: "Booking confirmed",
-                      customer: "Stylist 3",
-                      service: "Nail Art",
-                    },
-                    {
-                      time: "1:30 PM",
-                      action: "Payment received",
-                      customer: "Stylist 4",
-                      service: "Full Set",
-                    },
-                  ].map((activity, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between py-2 border-b last:border-b-0"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Badge variant="outline">{activity.time}</Badge>
-                        <div>
-                          <p className="font-medium">{activity.action}</p>
-                          <p className="text-sm text-gray-600">
-                            {activity.customer} - {activity.service}
-                          </p>
+                  {recentActivity.length > 0 ? (
+                    recentActivity.map((activity, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between py-2 border-b last:border-b-0"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <Badge variant="outline">{activity.time}</Badge>
+                          <div>
+                            <p className="font-medium">{activity.action}</p>
+                            <p className="text-sm text-gray-600">
+                              {activity.customer} - {activity.service}
+                            </p>
+                          </div>
                         </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No recent activity today</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
