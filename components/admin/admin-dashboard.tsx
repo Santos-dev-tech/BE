@@ -32,6 +32,7 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useSampleData } from "@/hooks/use-sample-data";
+import { FirebaseDebug } from "@/components/debug/firebase-debug";
 
 interface DashboardStats {
   todaysBookings: number;
