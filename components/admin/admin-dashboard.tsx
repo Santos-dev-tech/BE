@@ -23,16 +23,9 @@ import {
   Crown,
 } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/notification-bell";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  Timestamp,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useSampleData } from "@/hooks/use-sample-data";
 import { AdminUtilities } from "@/components/admin/admin-utilities";
+import { useSystemValidation } from "@/hooks/use-system-validation";
 
 interface DashboardStats {
   todaysBookings: number;
