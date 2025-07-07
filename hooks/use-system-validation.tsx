@@ -51,7 +51,8 @@ export function useSystemValidation() {
           ...doc.data(),
         }));
         const revenue = bookings.reduce(
-          (sum: number, booking: any) => sum + (booking.revenue || 0),
+          (sum: number, booking: any) =>
+            sum + (booking.revenue || booking.price || 0),
           0,
         );
 
@@ -121,7 +122,8 @@ export function useSystemValidation() {
         ...doc.data(),
       }));
       const revenue = bookings.reduce(
-        (sum: number, booking: any) => sum + (booking.revenue || 0),
+        (sum: number, booking: any) =>
+          sum + (booking.revenue || booking.price || 0),
         0,
       );
 
