@@ -287,10 +287,6 @@ export default function AdminDashboard() {
           <TabsContent value="messages">
             <MessagingCenter />
           </TabsContent>
-
-          <TabsContent value="debug">
-            <FirebaseDebug />
-          </TabsContent>
         </Tabs>
       </div>
     </div>
