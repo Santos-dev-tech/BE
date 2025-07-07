@@ -91,10 +91,17 @@ export function HeroSection() {
           </div>
           <div className="flex space-x-2">
             <Link href="/auth/client/signin">
-              <Button variant="outline">Sign In</Button>
+              <Button variant="outline">Client Sign In</Button>
             </Link>
             <Link href="/auth/client/signup">
-              <Button>Book Now</Button>
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                Book Now
+              </Button>
+            </Link>
+            <Link href="/auth/admin/signin">
+              <Button variant="ghost" size="sm" className="text-gray-500">
+                Admin
+              </Button>
             </Link>
           </div>
         </div>
