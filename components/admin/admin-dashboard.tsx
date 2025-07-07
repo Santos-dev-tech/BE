@@ -138,6 +138,11 @@ export default function AdminDashboard() {
       },
       (error) => {
         console.error("Error fetching clients:", error);
+        if (error.code === "permission-denied") {
+          console.log(
+            "Permission denied for clients collection. Please update Firestore security rules.",
+          );
+        }
         setStats((prev) => ({ ...prev, activeCustomers: 0 }));
       },
     );
