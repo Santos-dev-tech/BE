@@ -64,7 +64,7 @@ export default function AdminDashboard() {
   });
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
-  // Initialize sample data (optional - will only work with proper permissions)
+  // Initialize sample data
   useSampleData();
 
   useEffect(() => {
