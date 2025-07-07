@@ -150,10 +150,11 @@ export default function ClientDashboard() {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="bookings">My Bookings</TabsTrigger>
             <TabsTrigger value="book">Book Appointment</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
+            <TabsTrigger value="test">Test Experience</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
