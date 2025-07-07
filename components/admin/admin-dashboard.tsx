@@ -58,24 +58,28 @@ export default function AdminDashboard() {
       value: stats.todaysBookings.toString(),
       icon: Calendar,
       color: "text-blue-600",
+      status: isValidated ? "✅" : "⏳",
     },
     {
       title: "Pending Messages",
       value: stats.pendingMessages.toString(),
       icon: MessageSquare,
       color: "text-green-600",
+      status: isValidated ? "✅" : "⏳",
     },
     {
       title: "Active Customers",
       value: stats.activeCustomers.toString(),
       icon: Users,
       color: "text-purple-600",
+      status: isValidated ? "✅" : "⏳",
     },
     {
       title: "Revenue Today",
       value: `Ksh${stats.revenueToday.toLocaleString()}`,
       icon: TrendingUp,
       color: "text-orange-600",
+      status: isValidated ? "✅" : "⏳",
     },
   ];
 
