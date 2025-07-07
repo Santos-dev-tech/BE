@@ -128,16 +128,27 @@ export default function AdminDashboard() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {statsDisplay.map((stat, index) => (
-                <Card key={index}>
+                <Card
+                  key={index}
+                  className={`${isValidated ? "border-green-200" : "border-gray-200"}`}
+                >
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-600">
-                          {stat.title}
-                        </p>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-sm font-medium text-gray-600">
+                            {stat.title}
+                          </p>
+                          <span className="text-xs">{stat.status}</span>
+                        </div>
                         <p className="text-2xl font-bold text-gray-900">
                           {stat.value}
                         </p>
+                        {isValidated && (
+                          <p className="text-xs text-gray-500">
+                            Last updated: {lastUpdate.toLocaleTimeString()}
+                          </p>
+                        )}
                       </div>
                       <stat.icon className={`h-8 w-8 ${stat.color}`} />
                     </div>
