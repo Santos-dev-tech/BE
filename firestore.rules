@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow admin user full access
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == "VJdxemjpYTfR3TAfAQDmZ9ucjxB2";
+    }
+    
+    // Allow authenticated users to access their own data
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Allow users to access their own documents
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Clients collection - users can read/write their own profile, admin can read all
+    match /clients/{clientId} {
+      allow read, write: if isOwner(clientId) || isAdmin();
+    }
+    
+    // Bookings collection - users can read/write their own bookings, admin can read/write all
+    match /bookings/{bookingId} {
+      allow read, write: if isAdmin();
+      allow read, write: if isAuthenticated() && resource.data.customerId == request.auth.uid;
+      allow create: if isAuthenticated();
+    }
+    
+    // Conversations collection - admin can read/write all, users can read/write their own
+    match /conversations/{conversationId} {
+      allow read, write: if isAdmin();
+      allow read, write: if isAuthenticated() && conversationId.matches('.*' + request.auth.uid + '.*');
+    }
+    
+    // Messages collection - admin can read/write all, users can read/write in their conversations
+    match /messages/{messageId} {
+      allow read, write: if isAdmin();
+      allow read, write: if isAuthenticated() && (
+        resource.data.senderId == request.auth.uid ||
+        resource.data.conversationId.matches('.*' + request.auth.uid + '.*')
+      );
+      allow create: if isAuthenticated();
+    }
+    
+    // Notifications collection - users can read their own, admin can read/write all
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if isAdmin();
+      allow create: if isAuthenticated();
+    }
+    
+    // Allow read access to public data
+    match /{document=**} {
+      allow read: if false; // Deny by default, specific rules above take precedence
+    }
+  }
+}
